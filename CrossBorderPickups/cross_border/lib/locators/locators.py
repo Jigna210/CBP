@@ -14,6 +14,11 @@ class Locators:
         email_id = (By.ID, "email")
         password = (By.ID, "password")
         login_button = (By.CSS_SELECTOR, "button[type='submit']")
+        user_icon = (By.CSS_SELECTOR, '#profileDropdown')
+        logout_button = (By.CSS_SELECTOR, 'a[class="dropdown-item notify-item"]')
+        email_msg = (By.XPATH, "//div[contains(text(),'Email is required')]")
+        password_msg = (By.XPATH, "//div[contains(text(),'Password is required')]")
+        credentials_msg = (By.XPATH, "//div[contains(text(),'No active account found with the given credentials')]")
 
     class ShipmentPage:
         """ Locators related to Shipment Page """

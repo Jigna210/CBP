@@ -1,4 +1,4 @@
-from cross_border.page_objects.BasePage import BasePage
+from CrossBorderPickups.cross_border.page_objects.BasePage import BasePage
 
 
 class ShipmentPage(BasePage):

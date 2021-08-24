@@ -1,6 +1,6 @@
-from cross_border.lib.constants.constant import BaseConstants
-from cross_border.lib.locators.locators import Locators
-from cross_border.page_objects.BasePage import BasePage
+from CrossBorderPickups.cross_border.lib.constants.constant import BaseConstants
+from CrossBorderPickups.cross_border.lib.locators.locators import Locators
+from CrossBorderPickups.cross_border.page_objects.BasePage import BasePage
 
 
 class LoginPage(BasePage):
@@ -45,3 +45,10 @@ class LoginPage(BasePage):
         :return: None
         """
         self.login_with_defaults()
+
+    def do_logout(self) -> None:
+        """
+        Function for logout from Application
+        """
+        self.click(by_locator=Locators.LoginPage.user_icon)
+        self.click(by_locator=Locators.LoginPage.logout_button)
