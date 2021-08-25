@@ -1,4 +1,5 @@
 import os
+from select import select
 from subprocess import TimeoutExpired
 from urllib.error import URLError
 
@@ -6,6 +7,7 @@ from selenium.common.exceptions import WebDriverException, TimeoutException, Une
 from selenium.webdriver import ActionChains
 from selenium.webdriver.remote.webelement import WebElement
 from selenium.webdriver.support import expected_conditions as EC
+from selenium.webdriver.support.select import Select
 from selenium.webdriver.support.wait import WebDriverWait
 
 from CrossBorderPickups.cross_border.lib.configs.config import Config
@@ -184,3 +186,11 @@ class BasePage(object):
             WebDriverWait(self.driver, timeout, poll_frequency, ignored_exceptions).until(lambda x: method())
         except TimeoutException:
             raise TimeoutExpired(timeout, waiting_for)
+
+    def select_from_drop_down(self, by_locator: str, value: str):
+        """
+        Method to select value from drop down selection
+        """
+        # element = WebDriverWait(self.driver, 10).until(EC.visibility_of_element_located(by_locator))
+        element = Select(WebDriverWait(self.driver, 10).until(EC.visibility_of_element_located(by_locator)))
+        element.select_by_value(value)

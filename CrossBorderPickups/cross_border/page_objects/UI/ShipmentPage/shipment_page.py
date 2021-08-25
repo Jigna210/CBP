@@ -1,3 +1,4 @@
+from CrossBorderPickups.cross_border.lib.locators.locators import Locators
 from CrossBorderPickups.cross_border.page_objects.BasePage import BasePage
 
 

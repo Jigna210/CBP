@@ -52,3 +52,19 @@ class LoginPage(BasePage):
         """
         self.click(by_locator=Locators.LoginPage.user_icon)
         self.click(by_locator=Locators.LoginPage.logout_button)
+
+    def do_user_can_sign_up_personal_account(self) -> None:
+        """
+        Function for user do Sign-Up successfully in application.
+        """
+        self.click(by_locator=Locators.SignUpPage.sign_up_link)
+        self.click(by_locator=Locators.SignUpPage.personal_account)
+        self.enter_text(by_locator=Locators.PersonSignUp.fullname, value="test")
+        self.enter_text(by_locator=Locators.PersonSignUp.email, value="test@cbp.in")
+        self.enter_text(by_locator=Locators.PersonSignUp.password, value="123456")
+        self.enter_text(by_locator=Locators.PersonSignUp.confirmPassword, value="123456")
+        self.enter_text(by_locator=Locators.PersonSignUp.line1, value="address1")
+        self.enter_text(by_locator=Locators.PersonSignUp.line2, value="address2")
+        self.enter_text(by_locator=Locators.PersonSignUp.city, value="ON")
+        self.select_from_drop_down(by_locator=Locators.PersonSignUp.province, value='Alberta')
+        self.enter_text(by_locator=Locators.PersonSignUp.postal_code, value="MG1 012")
