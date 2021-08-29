@@ -1,6 +1,9 @@
 class BaseConstants:
     """ Common application constants """
     DEFAULT_TIMEOUT = 30
+    BROWSER = "chrome"
+    table_column = 'table[class*="table-centered"] thead th'
+    table_row = 'table[class*="table-centered"] tbody tr'
 
     class Urls:
         """ Constants related to application page URL's """
@@ -19,3 +22,14 @@ class BaseConstants:
 
 class PageConstants:
     """ Constants related to different application web pages """
+
+    class PackagesPage:
+        """ Constants related to Packages Page """
+        NO_RECORD_MESSAGE = "No Records"
+        PACKAGE_STATUS = "Status"
+        PACKAGE_RECEIVED_DATE = "Received"
+        PACKAGE_SIZE = "Size"
+        PACKAGE_TRACKING_NUMBER = "Tracking Number"
+        PACKAGE_CARRIER = "Carrier"
+        PACKAGE_CONTENTS = "PACKAGE CONTENTS"
+

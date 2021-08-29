@@ -2,7 +2,9 @@ import pytest
 
 from CrossBorderPickups.cross_border.lib.locators.locators import Locators
 from CrossBorderPickups.cross_border.lib.messages.message import NotificationMessages
+from CrossBorderPickups.cross_border.page_objects.UI.HeaderPage.header_page import HeaderPage
 from CrossBorderPickups.cross_border.page_objects.UI.LoginPage.login_page import LoginPage
+from CrossBorderPickups.cross_border.page_objects.UI.PackagesPage.packages_page import PackagesPage
 from CrossBorderPickups.cross_border.page_objects.UI.ShipmentPage.shipment_page import ShipmentPage
 from CrossBorderPickups.cross_border.tests.test_base import BaseTest
 
@@ -98,6 +100,32 @@ class TestLoginPage(BaseTest):
 
         assert login_page.get_element_text(by_locator=Locators.LoginPage.credentials_msg) == \
                NotificationMessages.LoginPageValidation.Invalid_credentials
+
+    @pytest.mark.parametrize('username, password', [
+        ("chavdajigna985@gmail.com", "123456"), ("jr21029@gmail.com", "123456")])
+    def test_user_can_login_successfully(self, username, password):
+        """
+        Test Steps:
+        1. Enter correct username or email id
+        2. Enter correct password
+        3. Click on Login button
+
+        Scenario Tested:
+        [x] User should do login successfully in product.
+        """
+        header_page = HeaderPage(self.driver)
+        header_page.do_logout()
+
+        login_page = LoginPage(self.driver)
+        login_page.login_with_credentials(username=username, password=password)
+
+        packages_page = PackagesPage(self.driver)
+        page_title = packages_page.get_element_text(by_locator=Locators.PackagesPage.page_title)
+        expected_page_title = "Dashboard" if username == "jr21029@gmail.com" else "Shipments"
+
+        assert page_title == expected_page_title, "User can not be login successfully"
+
+        header_page.do_logout()
 
     def test_sign_page_with_personal_account(self):
         """
