@@ -1,8 +1,7 @@
 from selenium.common.exceptions import NoSuchElementException
 
-from cross_border.lib.constants.constant import BaseConstants
-from cross_border.lib.locators.locators import Locators
-from cross_border.page_objects.BasePage import BasePage
+from CrossBorderPickups.cross_border.lib.constants.constant import BaseConstants
+from CrossBorderPickups.cross_border.page_objects.BasePage import BasePage
 
 
 class GenericBaseTable(BasePage):

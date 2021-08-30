@@ -127,22 +127,22 @@ class TestLoginPage(BaseTest):
 
         header_page.do_logout()
 
-    def test_sign_page_with_personal_account(self):
-        """
-            Test Steps:
-            1. Enter Full Name
-            2. Enter email
-            3. Enter Password
-            4. Enter Confirm Password
-            5. Enter Phone Number
-            6. Enter Address
-            7. Enter City
-            8. Enter Postal Code
-            9. Enter Province
-            10.Enter Country
-
-            Scenario Tested:
-            [x] User do Sign-Up successfully in application.
-       """
-        login_page = LoginPage(self.driver)
-        login_page.do_user_can_sign_up_personal_account()
+    # def test_sign_page_with_personal_account(self):
+    #     """
+    #         Test Steps:
+    #         1. Enter Full Name
+    #         2. Enter email
+    #         3. Enter Password
+    #         4. Enter Confirm Password
+    #         5. Enter Phone Number
+    #         6. Enter Address
+    #         7. Enter City
+    #         8. Enter Postal Code
+    #         9. Enter Province
+    #         10.Enter Country
+    #
+    #         Scenario Tested:
+    #         [x] User do Sign-Up successfully in application.
+    #    """
+    #     login_page = LoginPage(self.driver)
+    #     login_page.do_user_can_sign_up_personal_account()
