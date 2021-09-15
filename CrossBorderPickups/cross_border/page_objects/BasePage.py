@@ -1,5 +1,4 @@
 import os
-from select import select
 from subprocess import TimeoutExpired
 from urllib.error import URLError
 
@@ -7,7 +6,6 @@ from selenium.common.exceptions import WebDriverException, TimeoutException, Une
 from selenium.webdriver import ActionChains
 from selenium.webdriver.remote.webelement import WebElement
 from selenium.webdriver.support import expected_conditions as EC
-from selenium.webdriver.support.select import Select
 from selenium.webdriver.support.wait import WebDriverWait
 
 from CrossBorderPickups.cross_border.lib.configs.config import Config
@@ -35,35 +33,76 @@ class BasePage(object):
         page_url = self.base_url + url if url else self.base_url
         self.driver.get(page_url)
 
-    def find_element(self, by_locator: str) -> WebElement:
+    def find_element(self, by_locator: WebElement) -> WebElement:
         """
         Finds web element on UI page by given locator
 
-        :param str by_locator: UI locator
+        :param WebElement by_locator: UI locator
         :return: Web element of UI locator
         :rtype: WebElement
         """
+        WebDriverWait(self.driver, 10).until(EC.visibility_of_element_located(by_locator))
         return self.driver.find_element(by_locator)
 
-    def find_elements(self, by_locator: str) -> WebElement:
+    def find_elements(self, by_locator: WebElement) -> list:
         """
         Finds web elements on UI page by given locator
 
-        :param str by_locator: UI locator
+        :param WebElement by_locator: UI locator
+        :return: Web element of UI locator
+        :rtype: list
+        """
+        WebDriverWait(self.driver, 10).until(EC.visibility_of_element_located(by_locator))
+        return self.driver.find_elements(by_locator)
+
+    def find_element_by_css_selector(self, locator_value: str) -> WebElement:
+        """
+        Finds web element on UI page by using CSS selector for given locator value
+
+        :param str locator_value: UI locator
         :return: Web element of UI locator
         :rtype: WebElement
         """
-        return self.driver.find_elements(by_locator)
+        return self.driver.find_element_by_css_selector(css_selector=locator_value)
 
-    def click(self, by_locator: str) -> None:
+    def find_elements_by_css_selector(self, locator_value: str) -> list:
+        """
+        Finds web elements on UI page by using CSS selector for given locator value
+
+        :param str locator_value: UI locator
+        :return: Web elements of UI locator
+        :rtype: list
+        """
+        return self.driver.find_elements_by_css_selector(css_selector=locator_value)
+
+    def find_element_by_xpath(self, locator_value: str) -> WebElement:
+        """
+        Finds web elements on UI page by using xpath for given locator value
+
+        :param str locator_value: UI locator
+        :return: Web elements of UI locator
+        :rtype: WebElement
+        """
+        return self.driver.find_element_by_xpath(xpath=locator_value)
+
+    def click(self, by_locator: WebElement) -> None:
         """
         Clicks on web element located by given locator
 
-        :param str by_locator: UI locator
+        :param WebElement by_locator: UI locator
         :return: None
         """
         element = WebDriverWait(self.driver, 10).until(EC.visibility_of_element_located(by_locator))
         element.click()
+
+    def click_element_by_javascript(self, element: WebElement) -> None:
+        """
+        Click on given web element by using javascript
+
+        :param WebElement element: Element that to be clicked
+        :return: None
+        """
+        self.driver.execute_script("arguments[0].click();", element)
 
     def get_title(self) -> str:
         """
@@ -83,53 +122,58 @@ class BasePage(object):
         """
         return self.driver.current_url
 
-    def enter_text(self, by_locator: str, value: str) -> None:
+    def enter_text(self, by_locator: WebElement, value: str) -> None:
         """
         Enters given text in web element located by given locator
 
-        :param str by_locator: UI locator
+        :param WebElement by_locator: UI locator
         :param str value: value that need to be enter
         :return: None
         """
         return WebDriverWait(self.driver, 10).until(EC.visibility_of_element_located(by_locator)).send_keys(value)
 
-    def get_element_text(self, by_locator: str) -> str:
+    def get_element_text(self, by_locator: WebElement) -> str:
         """
         Returns text from web element located at given locator
 
-        :param str by_locator: UI locator
+        :param WebElement by_locator: UI locator
         :return: text value from web element
         :rtype: str
         """
         element = WebDriverWait(self.driver, 10).until(EC.visibility_of_element_located(by_locator))
         return element.text
 
-    def is_enabled(self, by_locator: str) -> bool:
+    def is_element_enabled(self, by_locator: WebElement) -> bool:
         """
         Checks that web element located at given locator is enabled
 
-        :param str by_locator: UI locator
+        :param WebElement by_locator: UI locator
         :return: True is web element is enabled else False
         :rtype: bool
         """
-        return WebDriverWait(self.driver, 10).until(EC.visibility_of_element_located(by_locator))
+        element = WebDriverWait(self.driver, 10).until(EC.visibility_of_element_located(by_locator))
+        return element.is_enabled()
 
-    def is_visible(self, by_locator: str) -> bool:
+    def is_element_visible(self, by_locator: WebElement) -> bool:
         """
         Checks that web element located at given locator is visible on UI
 
-        :param str by_locator: UI locator
+        :param WebElement by_locator: UI locator
         :return: True is web element is visible on UI else False
         :rtype: bool
         """
-        element = WebDriverWait(self.driver, 10).until(EC.visibility_of_element_located(by_locator))
-        return bool(element)
+        if isinstance(by_locator, tuple):
+            element = WebDriverWait(self.driver, 10).until(EC.visibility_of_element_located(by_locator))
+        else:
+            element = by_locator
 
-    def move_to_element(self, by_locator: str) -> None:
+        return element.is_displayed()
+
+    def move_to_element(self, by_locator: WebElement) -> None:
         """
         Moves to the web element located at given locator by hovering the mouse
 
-        :param str by_locator: UI locator
+        :param WebElement by_locator: UI locator
         :return: None
         """
         element = WebDriverWait(self.driver, 10).until(EC.visibility_of_element_located(by_locator))
@@ -186,11 +230,3 @@ class BasePage(object):
             WebDriverWait(self.driver, timeout, poll_frequency, ignored_exceptions).until(lambda x: method())
         except TimeoutException:
             raise TimeoutExpired(timeout, waiting_for)
-
-    def select_from_drop_down(self, by_locator: str, value: str):
-        """
-        Method to select value from drop down selection
-        """
-        # element = WebDriverWait(self.driver, 10).until(EC.visibility_of_element_located(by_locator))
-        element = Select(WebDriverWait(self.driver, 10).until(EC.visibility_of_element_located(by_locator)))
-        element.select_by_value(value)

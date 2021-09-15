@@ -1,4 +1,5 @@
 import pytest
+from _pytest.fixtures import SubRequest
 from selenium import webdriver
 
 from CrossBorderPickups.cross_border.lib.configs import config
@@ -6,8 +7,8 @@ from CrossBorderPickups.cross_border.lib.constants.constant import BaseConstants
 from CrossBorderPickups.cross_border.page_objects.UI.LoginPage.login_page import LoginPage
 
 
-@pytest.fixture(params=["chrome"], scope="class")
-def init_driver(request):
+@pytest.fixture(params=[BaseConstants.BROWSER])
+def init_driver(request: 'SubRequest'):
     """ Initialize given driver and open application URL """
     web_driver = None
 
@@ -17,18 +18,18 @@ def init_driver(request):
         web_driver = webdriver.Firefox(executable_path=config.Config.FIREFOX_DRIVER_DIR)
 
     request.cls.driver = web_driver
+    web_driver.maximize_window()
     web_driver.get(url=BaseConstants.Urls.BASE_URL)
     web_driver.implicitly_wait(time_to_wait=BaseConstants.DEFAULT_TIMEOUT)
 
-    yield
+    yield web_driver
 
-    web_driver.close()
+    web_driver.quit()
 
 
 @pytest.fixture()
 def login(init_driver):
     """ Automatically logs into product with configured username and password before each test """
-
     driver = init_driver
 
     try:

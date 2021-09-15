@@ -10,7 +10,7 @@ from CrossBorderPickups.cross_border.page_objects.BasePage import BasePage
 
 
 class PackagesPage(BasePage):
-    """ Page Object for Shipment Page """
+    """ Page Object class for Shipment Page """
 
     def __init__(self, driver):
         super().__init__(driver)
@@ -95,34 +95,60 @@ class PackagesList(GenericBaseTable):
         package_details = {}
 
         package_constant = PageConstants.PackagesPage
-        field_number_dict = {package_constant.PACKAGE_STATUS: 1, package_constant.PACKAGE_RECEIVED_DATE: 2,
-                             package_constant.PACKAGE_SIZE: 3, package_constant.PACKAGE_TRACKING_NUMBER: 4,
-                             package_constant.PACKAGE_CARRIER: 5}
-
-        package_info = self.get_all_packages_id()
+        field_number_dict = {package_constant.PACKAGE_RECEIVED_DATE: 4,
+                             package_constant.PACKAGE_SIZE: 5, package_constant.PACKAGE_TRACKING_NUMBER: 6}
 
         for field in fields:
-            for info in package_info:
-                row_text = info.text.split()
+            for row in self.rows:
+                row_text = row.text.split()
 
                 if row_text[0] == package_id:
-                    package_details[field] = row_text[field_number_dict[field]]
+                    if field == package_constant.PACKAGE_STATUS:
+                        expected_value = " ".join(row_text[1:4])
+                    elif field == package_constant.PACKAGE_CARRIER:
+                        expected_value = " ".join(row_text[7:9])
+                    else:
+                        expected_value = field_number_dict[field]
+
+                    package_details[field] = expected_value
+                    break
 
         return package_details
 
+    def get_package_id_of_pending_order_creation(self, package_ids: list) -> list:
+        """
+        Returns id of those packages whose status has "Pending order creation"
+
+        :param list package_ids: All packages ids
+        :return: ids of "Pending order creation" package
+        :rtype: list
+        """
+        pending_order_creation_ids = []
+        package_constant = PageConstants.PackagesPage
+
+        for package_id in package_ids:
+            package_status = self.get_package_details_by_id(package_id=package_id,
+                                                            fields=[package_constant.PACKAGE_STATUS])['Status']
+            if package_status == package_constant.PENDING_ORDER_CREATION:
+                pending_order_creation_ids.append(package_id)
+
+        return pending_order_creation_ids
+
 
 class CreateOrderModal(GenericModal, PackagesList):
-    """ Page Object for Create Order Modal """
+    """ Page Object class for Create Order Modal """
 
-    def select_package_received_method(self, locator_value: str) -> None:
+    billing_info_locators = Locators.PackagesPage.CreateOrder
+
+    def get_element_of_package_receive_radio_button(self, locator_value: str) -> WebElement:
         """
-        Select package received radio button by using given value
+        Returns Web Element of package received methods radio button by using given value
 
         :param locator_value: UI locator value
-        :return: None
+        :return: WebElement
         """
-        element = self.find_element_by_id(locator_value=locator_value.lower())
-        element.click()
+        return self.find_element_by_css_selector(locator_value='input[type="radio"][id="{}"]'.format(
+            locator_value.lower()))
 
     def fill_payment_details(self, **kwargs) -> None:
         """
@@ -131,14 +157,12 @@ class CreateOrderModal(GenericModal, PackagesList):
         :param kwargs: payment info that to be fill
         :return: None
         """
-        payment_info_locators = Locators.PackagesPage.CreateOrder
-
-        self.enter_text(by_locator=payment_info_locators.email_field, value=kwargs.get(k="email_id"))
-        self.enter_text(by_locator=payment_info_locators.name_on_card_field, value=kwargs.get(k="card_name"))
-        self.enter_text(by_locator=payment_info_locators.card_number_field, value=kwargs.get(k="card_number"))
-        self.enter_text(by_locator=payment_info_locators.exp_month_field, value=kwargs.get(k="exp_month"))
-        self.enter_text(by_locator=payment_info_locators.exp_year_field, value=kwargs.get(k="exp_year"))
-        self.enter_text(by_locator=payment_info_locators.cvc_field, value=kwargs.get(k="cvc_number"))
+        self.enter_text(by_locator=self.billing_info_locators.email_field, value=kwargs.get("email_id"))
+        self.enter_text(by_locator=self.billing_info_locators.name_on_card_field, value=kwargs.get("card_name"))
+        self.enter_text(by_locator=self.billing_info_locators.card_number_field, value=kwargs.get("card_number"))
+        self.enter_text(by_locator=self.billing_info_locators.exp_month_field, value=kwargs.get("exp_month"))
+        self.enter_text(by_locator=self.billing_info_locators.exp_year_field, value=kwargs.get("exp_year"))
+        self.enter_text(by_locator=self.billing_info_locators.cvc_field, value=kwargs.get("cvc_number"))
 
     def fill_billing_address_details(self, **kwargs) -> None:
         """
@@ -147,12 +171,10 @@ class CreateOrderModal(GenericModal, PackagesList):
         :param kwargs: billing info that to be fill
         :return: None
         """
-        payment_info_locators = Locators.PackagesPage.CreateOrder
-
-        self.enter_text(by_locator=payment_info_locators.address_field, value=kwargs.get(k="address"))
-        self.enter_text(by_locator=payment_info_locators.city_field, value=kwargs.get(k="city"))
-        self.enter_text(by_locator=payment_info_locators.state_field, value=kwargs.get(k="state"))
-        self.enter_text(by_locator=payment_info_locators.postal_code_field, value=kwargs.get(k="postal_code"))
+        self.enter_text(by_locator=self.billing_info_locators.address_field, value=kwargs.get("address"))
+        self.enter_text(by_locator=self.billing_info_locators.city_field, value=kwargs.get("city"))
+        self.enter_text(by_locator=self.billing_info_locators.state_field, value=kwargs.get("state"))
+        self.enter_text(by_locator=self.billing_info_locators.postal_code_field, value=kwargs.get("postal_code"))
         self.select_region_from_drop_down(**kwargs)
 
     def select_region_from_drop_down(self, **kwargs) -> None:
@@ -162,16 +184,16 @@ class CreateOrderModal(GenericModal, PackagesList):
         :param kwargs: region that to be select
         :return: None
         """
-        payment_info_locators = Locators.PackagesPage.CreateOrder
-        expected_region = kwargs.get(k="region")
+        expected_region = kwargs.get("region")
 
-        self.click(by_locator=payment_info_locators.region_selection_arrow)
-        self.enter_text(by_locator=payment_info_locators.region_text_field, value=expected_region)
-        results = self.find_elements(by_locator=payment_info_locators.region_results)
+        self.click(by_locator=Locators.select_drop_down_arrow)
+        self.enter_text(by_locator=Locators.drop_down_search_field, value=expected_region)
+        results = self.find_elements_by_css_selector(locator_value=Locators.drop_down_results)
 
         for result in results:
-            if expected_region in result.text:
+            if expected_region == result.get_attribute("innerHTML"):
                 result.click()
+                break
 
     def fill_order_details(self, **kwargs) -> None:
         """
@@ -180,6 +202,49 @@ class CreateOrderModal(GenericModal, PackagesList):
         :param kwargs: order info that to be filled
         :return: None
         """
-        self.select_package_received_method(kwargs.get(k="pkg_receive_method"))
+        self.click(by_locator=self.get_element_of_package_receive_radio_button(locator_value=kwargs.get(
+            "pkg_receive_method")))
         self.fill_payment_details(**kwargs)
         self.fill_billing_address_details(**kwargs)
+
+
+class AddContentModal(GenericModal, PackagesList):
+    """ Page Object class for Add Content Modal """
+
+    add_content_constant = Locators.PackagesPage.AddContent
+
+    def select_duty_category_from_drop_down_item(self, category_value: str) -> None:
+        """
+        Selects duty category item for given category value in 'Add content' modal
+
+        :param str category_value: category value to be enter
+        :return: None
+        """
+        self.enter_text(by_locator=self.add_content_constant.duty_category_field, value=category_value)
+        self.wait_for_element(lambda: self.is_element_visible(
+            by_locator=self.add_content_constant.duty_category_list_panel),
+                              waiting_for="duty category results get displayed")
+
+        if self.is_element_visible(by_locator=self.add_content_constant.duty_category_list_panel):
+            category_items = self.find_elements_by_css_selector(
+                locator_value=self.add_content_constant.duty_category_items)
+
+            for category in category_items:
+                if category.text == category_value:
+                    self.click_element_by_javascript(element=category)
+                    break
+
+    def fill_add_content_form(self, **kwargs) -> None:
+        """
+        Fills package content by using given details in 'Add content' modal
+
+        :param kwargs: package content details that to be fill
+        :return: None
+        """
+        self.select_duty_category_from_drop_down_item(category_value=kwargs.get("duty_category"))
+        self.select_country_from_drop_down(country=kwargs.get("country_origin"))
+        self.enter_text(by_locator=self.add_content_constant.quantity_field, value=kwargs.get("quantity"))
+        self.enter_text(by_locator=self.add_content_constant.value_usd_field, value=kwargs.get("content_value"))
+        self.enter_text(by_locator=self.add_content_constant.description_area,
+                        value=kwargs.get("content_description"))
+        self.click(by_locator=self.add_content_constant.add_button)
