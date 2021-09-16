@@ -1,9 +1,9 @@
 class BaseConstants:
     """ Common application constants """
-    DEFAULT_TIMEOUT = 40
+    DEFAULT_TIMEOUT = 30
     BROWSER = "chrome"
-    table_column = 'table[class*="table-centered"] thead th'
-    table_row = 'table[class*="table-centered"] tbody tr'
+    WINDOWS_SYSTEM = "Windows"
+    DISCARD_CHARGE_PER_PACKAGE = 2
 
     class Urls:
         """ Constants related to application page URL's """
@@ -32,6 +32,16 @@ class PageConstants:
         PACKAGE_TRACKING_NUMBER = "Tracking Number"
         PACKAGE_CARRIER = "Carrier"
         PACKAGE_CONTENTS = "PACKAGE CONTENTS"
+        PENDING_ORDER_CREATION = "Pending Order Creation"
+
+        class AddContent:
+            """ Constants related to Packages Content table """
+            CONTENT_QTY = "Qty"
+            CONTENT_VALUE = "Value"
+            CONTENT_TOTAL_VALUE = "Total Value"
+            CONTENT_TOTAL_VALUE_CAD = "Total Value(CAD)"
+            CONTENT_EST_DUTIES = "Est. Duties"
+            CONTENT_EST_TAX = "Est. Tax"
 
         class CreateOrder:
             """ Constants related to Create Order modal """
@@ -40,3 +50,8 @@ class PageConstants:
             PACKAGE_RECEIVE_BY_PICKUP = "Pickup"
             PACKAGE_PICKUP_LOCATION_MISSISSAUGA = "Mississauga"
             PACKAGE_PICKUP_LOCATION_MARKHAM = "Markham"
+
+        class DiscardPackages:
+            """ Constants related to Discard packages modal """
+            NUMBER_OF_DISCARDS = "Number of Discards"
+            TOTAL_CHARGE = "Total Charge"
