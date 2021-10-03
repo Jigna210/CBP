@@ -19,6 +19,7 @@ def init_driver(request: 'SubRequest'):
         if platform.system() == BaseConstants.WINDOWS_SYSTEM:
             web_driver = webdriver.Chrome(executable_path=config.Config.WINDOWS_CHROME_DRIVER_DIR)
         else:
+            print(config.Config.LINUX_CHROME_DRIVER_DIR)
             os.chmod(path=config.Config.LINUX_CHROME_DRIVER_DIR, mode=755)
             web_driver = webdriver.Chrome(executable_path=config.Config.LINUX_CHROME_DRIVER_DIR)
     elif request.param == "firefox":
