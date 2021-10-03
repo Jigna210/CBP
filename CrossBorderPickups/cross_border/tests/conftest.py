@@ -21,7 +21,7 @@ def init_driver(request: 'SubRequest'):
         else:
             print(config.Config.LINUX_CHROME_DRIVER_DIR)
             os.chmod(path=config.Config.LINUX_CHROME_DRIVER_DIR, mode=755)
-            web_driver = webdriver.Chrome(executable_path=config.Config.LINUX_CHROME_DRIVER_DIR)
+            web_driver = webdriver.Chrome(executable_path='/usr/bin/chromedriver')
     elif request.param == "firefox":
         web_driver = webdriver.Firefox(executable_path=config.Config.FIREFOX_DRIVER_DIR)
 
