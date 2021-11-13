@@ -1,3 +1,5 @@
+from datetime import datetime
+
 from CrossBorderPickups.cross_border.lib.constants.constant import BaseConstants
 from CrossBorderPickups.cross_border.lib.locators.locators import Locators
 from CrossBorderPickups.cross_border.page_objects.BasePage import BasePage
@@ -15,7 +17,7 @@ class LoginPage(BasePage):
 
         :return: None
         """
-        self._do_login(BaseConstants.Credentials.USER_NAME, BaseConstants.Credentials.PASSWORD)
+        self._do_login(BaseConstants.CUSTOMER_USER_NAME, BaseConstants.DEFAULT_PASSWORD)
 
     def login_with_credentials(self, username: str, password: str) -> None:
         """

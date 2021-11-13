@@ -9,7 +9,9 @@ from selenium.webdriver.support import expected_conditions as EC
 from selenium.webdriver.support.wait import WebDriverWait
 
 from CrossBorderPickups.cross_border.lib.configs.config import Config
+from CrossBorderPickups.cross_border.lib.configs.environmental_variables import CBP
 from CrossBorderPickups.cross_border.lib.constants.constant import BaseConstants
+from CrossBorderPickups.cross_border.lib.helpers.helpers import convert_rgb_to_hex
 
 
 class BasePage(object):
@@ -19,7 +21,7 @@ class BasePage(object):
     """
 
     def __init__(self, driver):
-        self.base_url = BaseConstants.Urls.BASE_URL
+        self.base_url = CBP.APPLICATION_URL
         self.driver = driver
         self.driver.implicitly_wait(time_to_wait=BaseConstants.DEFAULT_TIMEOUT)
 
@@ -30,8 +32,10 @@ class BasePage(object):
         :param str url: page endpoint
         :return: None
         """
-        page_url = self.base_url + url if url else self.base_url
+        app_url = "#/operations/" + url if "-ops-" in self.base_url else url
+        page_url = os.path.join(self.base_url, app_url) if url else self.base_url
         self.driver.get(page_url)
+        self.driver.implicitly_wait(time_to_wait=10)
 
     def find_element(self, by_locator: WebElement) -> WebElement:
         """
@@ -85,6 +89,16 @@ class BasePage(object):
         """
         return self.driver.find_element_by_xpath(xpath=locator_value)
 
+    def find_elements_by_xpath(self, locator_value: str) -> list:
+        """
+        Finds web elements on UI page by using xpath for given locator value
+
+        :param str locator_value: UI locator
+        :return: Web elements of UI locator
+        :rtype: list
+        """
+        return self.driver.find_elements_by_xpath(xpath=locator_value)
+
     def click(self, by_locator: WebElement) -> None:
         """
         Clicks on web element located by given locator
@@ -130,7 +144,13 @@ class BasePage(object):
         :param str value: value that need to be enter
         :return: None
         """
-        return WebDriverWait(self.driver, 10).until(EC.visibility_of_element_located(by_locator)).send_keys(value)
+        if isinstance(by_locator, tuple):
+            element = WebDriverWait(self.driver, 10).until(EC.visibility_of_element_located(by_locator))
+        else:
+            element = by_locator
+
+        element.clear()
+        element.send_keys(value)
 
     def get_element_text(self, by_locator: WebElement) -> str:
         """
@@ -169,6 +189,17 @@ class BasePage(object):
 
         return element.is_displayed()
 
+    def is_element_selected(self, element: WebElement) -> bool:
+        """
+        Verifies that web element located at given locator is selected
+
+        :param WebElement element: Element ID that should be selected
+        :return: True is web element is selected else False
+        :rtype: bool
+        """
+        WebDriverWait(self.driver, 10)
+        return element.is_selected()
+
     def move_to_element(self, by_locator: WebElement) -> None:
         """
         Moves to the web element located at given locator by hovering the mouse
@@ -187,11 +218,10 @@ class BasePage(object):
         :param str path: Path to save file to. Default: output/screenshots.
         :return: None if screenshot was not taken; screenshot path otherwise
         """
-        file_path = None
-
         if path is None:
             path = Config.SCREENSHOTS_DIR
-        elif os.path.sep in filename:
+
+        if os.path.sep in filename:
             file_path = os.path.normpath(filename)
             path = os.path.normpath(os.path.split(filename)[0])
         else:
@@ -222,11 +252,14 @@ class BasePage(object):
         """
         timeout = kwargs.get('timeout_seconds', BaseConstants.DEFAULT_TIMEOUT)
         poll_frequency = kwargs.get('sleep_seconds', 0.5)
-        ignored_exceptions = kwargs.get('expected_exceptions', (WebDriverException,
-                                                                UnexpectedAlertPresentException))
+        ignored_exceptions = kwargs.get('expected_exceptions', (WebDriverException, UnexpectedAlertPresentException))
         waiting_for = kwargs.get('waiting_for', '')
 
         try:
             WebDriverWait(self.driver, timeout, poll_frequency, ignored_exceptions).until(lambda x: method())
         except TimeoutException:
             raise TimeoutExpired(timeout, waiting_for)
+
+    def get_color_code_of_ui_element(self, element: WebElement, css_property: str) -> str:
+        """ Returns color code of given UI Web element """
+        return convert_rgb_to_hex(rgb=element.value_of_css_property(css_property))

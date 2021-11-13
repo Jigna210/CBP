@@ -5,13 +5,16 @@ from selenium.webdriver.common.by import By
 
 class Locators:
     """ Covers locators of all web page from applications """
+    table_column = 'table[class*="table-centered"] thead th'
+    table_row = 'table[class*="cursor-pointer"] tbody tr'
+    modal_table_row = 'table[class*="table-hover"] tbody tr'
     modal = (By.CSS_SELECTOR, 'div.modal-content')
+    ps_modal = (By.CSS_SELECTOR, 'mat-dialog-container[class*="mat-dialog-container"]')
     modal_title = (By.CSS_SELECTOR, 'div.modal-header h4')
+    ops_modal_title = (By.CSS_SELECTOR, 'h2[class="mat-dialog-title"]')
     modal_close_button = (By.CSS_SELECTOR, 'div.modal-footer button[class*="btn-light"]')
     modal_close_icon = (By.CSS_SELECTOR, 'button.close')
     modal_back_button = (By.CSS_SELECTOR, 'div.modal-footer button[class*="btn-primary"]')
-    table_column = 'table[class*="table-centered"] thead th'
-    table_row = 'table[class*="table-centered"] tbody tr'
     drop_down_search_field = (By.CSS_SELECTOR, 'input[id*="search-field"]')
     select_drop_down_arrow = (By.CSS_SELECTOR, 'span[role="presentation"]')
     country_origin_list_panel = (By.CSS_SELECTOR, 'div[class*="results"]')
@@ -19,6 +22,7 @@ class Locators:
     notification_msg_div = (By.CSS_SELECTOR, 'div[class*="notification-msg-opened"]')
     notification_msg_icon = (By.CSS_SELECTOR, 'div[class*="notification-msg-icon"]')
     notification_msg_text = (By.CSS_SELECTOR, 'div[class*="notification-msg-body"]')
+    auto_suggestion_results = './/span[@class="mat-option-text"]'
 
     class SignUpPage:
         """ Locators related to SignUp page """
@@ -31,9 +35,10 @@ class Locators:
         """ Locators related to Login Page """
         email_id = (By.ID, "email")
         password = (By.ID, "password")
-        login_button = (By.CSS_SELECTOR, "button[type='submit']")
+        login_button = (By.CSS_SELECTOR, 'button[type="submit"]')
         user_icon = (By.CSS_SELECTOR, '#profileDropdown')
         logout_button = (By.CSS_SELECTOR, 'a[class="dropdown-item notify-item"]')
+        invalid_email_error = (By.CSS_SELECTOR, 'div[class="invalid-feedback"] div')
         email_msg = (By.XPATH, "//div[contains(text(),'Email is required')]")
         password_msg = (By.XPATH, "//div[contains(text(),'Password is required')]")
         credentials_msg = (By.XPATH, "//div[contains(text(),'No active account found with the given credentials')]")
@@ -66,20 +71,15 @@ class Locators:
         unlink_button = (By.XPATH, '//button[contains(@class, "btn-warning") and contains(text(), "Unlink")]')
         discard_button = (By.XPATH, '//button[contains(@class, "btn-danger") and contains(text(), "Discard")]')
         add_content_button = (By.XPATH, '//button[contains(text(), "Add Content")]')
+        edit_content_icon = "content-save-edit"
+        delete_content_icon = "mdi-delete"
 
         class CreateOrder:
             """ Locators related to Create Order modal """
             send_to_canada_button = (By.XPATH, '//button[contains(text(), "Send to Canada")]')
             email_field = (By.CSS_SELECTOR, 'input[formcontrolname="email"]')
-            name_on_card_field = (By.CSS_SELECTOR, 'input[formcontrolname="name"]')
-            card_number_field = (By.CSS_SELECTOR, 'input[formcontrolname="number"]')
-            exp_month_field = (By.CSS_SELECTOR, 'input[formcontrolname="exp_month"]')
-            exp_year_field = (By.CSS_SELECTOR, 'input[formcontrolname="exp_year"]')
-            cvc_field = (By.CSS_SELECTOR, 'input[formcontrolname="cvc"]')
-            address_field = (By.CSS_SELECTOR, 'input[formcontrolname="address_line1"]')
-            city_field = (By.CSS_SELECTOR, 'input[formcontrolname="address_city"]')
             state_field = (By.CSS_SELECTOR, 'input[formcontrolname="address_state"]')
-            postal_code_field = (By.CSS_SELECTOR, 'input[formcontrolname="address_zip"]')
+            postal_code_field = (By.CSS_SELECTOR, 'div[class="form-group"] input[formcontrolname="address_zip"]')
             region_selection_arrow = (By.CSS_SELECTOR, 'span[role="presentation"]')
             region_text_field = (By.CSS_SELECTOR, 'input[role="textbox"]')
             region_results = (By.CSS_SELECTOR, 'ul[class*="results"] li')
@@ -91,6 +91,14 @@ class Locators:
             shipping_address_province = (By.CSS_SELECTOR, 'div[role="combobox"] span[title="Ontario"]')
             shipping_address_postal_code = (By.CSS_SELECTOR, 'div[class*="my-1"] input[formcontrolname="address_zip"]')
             shipping_address_country = (By.CSS_SELECTOR, 'div[role="combobox"] span[title="Canada"]')
+            same_billing_address_checkbox = (By.ID, 'sameBillingAddress')
+            name_on_card_field = (By.CSS_SELECTOR, 'div[class="form-group"] input[formcontrolname="name"]')
+            card_number_field = (By.CSS_SELECTOR, 'input[formcontrolname="number"]')
+            exp_month_field = (By.CSS_SELECTOR, 'input[formcontrolname="exp_month"]')
+            exp_year_field = (By.CSS_SELECTOR, 'input[formcontrolname="exp_year"]')
+            cvc_field = (By.CSS_SELECTOR, 'input[formcontrolname="cvc"]')
+            address_field = (By.CSS_SELECTOR, 'input[formcontrolname="address_line1"]')
+            city_field = (By.CSS_SELECTOR, 'div[class="form-group"] input[formcontrolname="address_city"]')
             country_field = (By.CSS_SELECTOR, 'div[role="combobox"]')
             pay_ca_button = (By.CSS_SELECTOR, 'form[class*="ng-pristine"] button[class*="btn-block"]')
 
@@ -105,9 +113,65 @@ class Locators:
             add_button = (By.XPATH, '//div[@class="modal-footer"]//button[contains(text(), "Add")]')
             cancel_button = (By.XPATH, '//div[@class="modal-footer"]//button[contains(text(), "Cancel")]')
             country_origin = (By.CSS_SELECTOR, 'span[class*="selection__rendered"]')
+            update_button = (By.XPATH, '//div[@class="modal-footer"]//button[contains(text(), "Update")]')
 
+        class DiscardPackage:
+            """ Locators related to Discard Package modal """
+            discard_button = (By.XPATH, './/div[contains(@class, "tab-pane")]//button[contains(text(), "Discard")]')
+
+    class ShippingOrdersPage:
+        """ Locators related to Shipment Orders Page """
+        ecommerce_side_nav_menu = (By.XPATH, './/li[contains(@class, "side-nav-title") and '
+                                             'contains(text(), "Ecommerce")]')
+        manual_order_entry = (By.XPATH, './/button[contains(text(), "Manual Order Entry")]')
+
+        class ManualOrderEntryModal:
+            """ Locators related to Manual Orders Entry modal """
+            carrier_label = (By.XPATH, './/label[contains(text(), "Carriers")]')
+            tracking_number = (By.CSS_SELECTOR, 'input[formcontrolname="tracking_number"]')
+            carriers_drop_down = (By.XPATH, './/select2[@placeholder="Carriers"]//span['                                                                            
+                                            '@class="select2-selection__rendered"]')
+            next_button = (By.XPATH, './/button[contains(text(), "Next")]')
 
     class HeaderPage:
         """ Locators related to Header Page """
         user_avatar = (By.CSS_SELECTOR, 'span.account-user-avatar')
         logout_option = (By.CSS_SELECTOR, 'a.dropdown-item.notify-item')
+        operation_button = (By.CSS_SELECTOR, 'mat-toolbar button[class*="mat-menu-trigger"]')
+
+    class NewPackagesPage:
+        """ Locators related to New Packages Page """
+        full_name = (By.CSS_SELECTOR, 'app-profile-popover[labeltext="Full Name"] input')
+        full_name_results = './/span[@class="mat-option-text"]//span[1]/span[@class="text-dark"]'
+        date_picker_input_field = (By.CSS_SELECTOR, 'input[class*="mat-datepicker-input"]')
+        date_picker_toggle_button = (By.CSS_SELECTOR, 'mat-datepicker-toggle[class*="mat-datepicker-toggle"]')
+        month_year_button = (By.CSS_SELECTOR, 'div[class="mat-calendar-arrow"]')
+        calender_body_content = 'div[class*="mat-calendar-body-cell-content"]'
+        previous_year_button = (By.CSS_SELECTOR, 'button[class*="mat-calendar-previous-button"]')
+        next_year_button = (By.CSS_SELECTOR, 'button[class*="mat-calendar-next-button"]')
+        tracking_number = (By.CSS_SELECTOR, 'input[formcontrolname="tracking_number"]')
+        vendor_dropdown = (By.CSS_SELECTOR, 'app-vendor-popover input')
+        weight_field = (By.CSS_SELECTOR, 'input[formcontrolname="weight"]')
+        length_field = (By.CSS_SELECTOR, 'input[formcontrolname="length"]')
+        width_field = (By.CSS_SELECTOR, 'input[formcontrolname="width"]')
+        height_field = (By.CSS_SELECTOR, 'input[formcontrolname="height"]')
+        invoice_checkbox = (By.CSS_SELECTOR, 'mat-checkbox[formcontrolname="invoice"] input')
+        data_received_checkbox = (By.CSS_SELECTOR, 'mat-checkbox[formcontrolname="data_received"] input')
+        add_content_button = (By.XPATH, './/span[@class="mat-button-wrapper" and contains(text(), "Add Content")]')
+        package_separation_checkbox = (By.CSS_SELECTOR, 'mat-checkbox[formcontrolname="package_separation"] input')
+        create_package_button = (By.XPATH, './/span[@class="mat-button-wrapper" and contains('
+                                           'text(), "Create Package")]')
+        required_field_error_msgs = 'mat-error[class*="mat-error"]'
+
+        class AddContent:
+            """ Locators related to "Add Content" modal form """
+            content_category_label = './/span[contains(@class, "ng-star-inserted") and contains(' \
+                                     'text(), "Category/Description")]'
+            category_or_description = (By.CSS_SELECTOR, 'input[data-placeholder="Category/Description"]')
+            content_quantity = (By.CSS_SELECTOR, 'mat-dialog-content input[formcontrolname="quantity"]')
+            content_value = (By.CSS_SELECTOR, 'mat-dialog-content input[formcontrolname="value_usd"]')
+            content_description = (By.CSS_SELECTOR, 'mat-dialog-content textarea[formcontrolname="description"]')
+            add_button = (By.CSS_SELECTOR, './/mat-dialog-actions//span[@class="mat-button-wrapper" and contains('
+                                           'text(), "Add")]')
+            cancel_button = (By.CSS_SELECTOR, './/mat-dialog-actions//span[@class="mat-button-wrapper" and contains('
+                                              'text(), "Cancel")]')
