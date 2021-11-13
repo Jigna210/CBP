@@ -4,8 +4,8 @@ from CrossBorderPickups.cross_border.lib.locators.locators import Locators
 from CrossBorderPickups.cross_border.lib.messages.message import NotificationMessages
 from CrossBorderPickups.cross_border.page_objects.UI.HeaderPage.header_page import HeaderPage
 from CrossBorderPickups.cross_border.page_objects.UI.LoginPage.login_page import LoginPage
-from CrossBorderPickups.cross_border.page_objects.UI.PackagesPage.packages_page import PackagesPage
-from CrossBorderPickups.cross_border.page_objects.UI.ShipmentPage.shipment_page import ShipmentPage
+from CrossBorderPickups.cross_border.page_objects.UI.ShopAndShip.PackagesPage.packages_page import PackagesPage
+# from CrossBorderPickups.cross_border.page_objects.UI.ShipmentPage.shipment_page import ShipmentPage
 from CrossBorderPickups.cross_border.tests.test_base import BaseTest
 
 
