@@ -72,7 +72,7 @@ def init_driver(request: 'SubRequest'):
 #     yield web_driver
 #
 #     web_driver.quit()
-#
+
 
 @pytest.fixture()
 def login(init_driver):
