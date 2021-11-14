@@ -310,7 +310,7 @@ class TestPackagesPage:
 
     @pytest.mark.parametrize('shipping_method', [create_order_constants.PACKAGE_RECEIVE_BY_MAIL,
                                                  create_order_constants.PACKAGE_RECEIVE_BY_PICKUP])
-    def test_visibility_of_fields_under_create_order_modal(self, package_receive_method):
+    def test_visibility_of_fields_under_create_order_modal(self, shipping_method):
         """
         Test Steps:
             1. Go to Packages page
@@ -359,9 +359,9 @@ class TestPackagesPage:
         #             receive_method)
 
         create_order.click_element_by_javascript(element=create_order.get_element_of_package_receive_radio_button(
-            locator_value=package_receive_method))
+            locator_value=shipping_method))
 
-        if package_receive_method == create_order_modal_constant.PACKAGE_RECEIVE_BY_MAIL:
+        if shipping_method == create_order_modal_constant.PACKAGE_RECEIVE_BY_MAIL:
             elements_to_be_verify = [
                 create_order_locators.shipping_address_name, create_order_locators.shipping_address_line_1,
                 create_order_locators.shipping_address_line_2, create_order_locators.shipping_address_city,
@@ -371,7 +371,7 @@ class TestPackagesPage:
             for element in elements_to_be_verify:
                 assert create_order.is_element_visible(by_locator=element), \
                     "Shipping address form is not getting displayed after clicking on package receive " \
-                    "method '{}'.".format(package_receive_method)
+                    "method '{}'.".format(shipping_method)
         else:
             for pickup_location in [create_order_modal_constant.PACKAGE_PICKUP_LOCATION_MISSISSAUGA,
                                     create_order_modal_constant.PACKAGE_PICKUP_LOCATION_MARKHAM]:
