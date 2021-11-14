@@ -2,7 +2,7 @@
 class BaseConstants:
     """ Common application constants """
     DEFAULT_BASE_URL = "https://cbp-customer-qa.crossborderpickups.ca/"
-    CUSTOMER_USER_NAME = "chavdajigna985@gmail.com"
+    CUSTOMER_USER_NAME = "qa_test12@yopmail.com"
     DEFAULT_PASSWORD = "123456"
     DEFAULT_TIMEOUT = 30
     CHROME_BROWSER = "Chrome"
