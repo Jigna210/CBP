@@ -435,7 +435,7 @@ class TestPackagesPage:
         create_order.wait_for_element(lambda: create_order.is_element_visible(
             by_locator=create_order_locators.email_field), waiting_for="order details page gets loaded")
 
-        self.click(by_locator=create_order.get_element_of_package_receive_radio_button(
+        create_order.click(by_locator=create_order.get_element_of_package_receive_radio_button(
             locator_value=shipping_method))
 
         is_same_address = create_order.is_element_selected(element=create_order_locators.same_billing_address_checkbox)
