@@ -6,6 +6,7 @@ from selenium.webdriver import DesiredCapabilities
 from CrossBorderPickups.cross_border.lib.configs.environmental_variables import CBP
 from CrossBorderPickups.cross_border.lib.constants.constant import BaseConstants
 
+
 class Config(object):
     """ Configuration variables related to automation framework """
 

@@ -48,49 +48,49 @@ class TestLoginPage:
 
         assert page_title == "Shipments", "User can not be login successfully"
 
-    def test_login_blank_credentials(self):
-        """
-        Test Steps:
-        1. Keep blank Email
-        2. Keep blank Password
-        3. Click on Login Button
-
-        Scenario Tested:
-        [x] User should not do login in application with blank credentials.
-        """
-        HeaderPage(self.driver).do_logout()
-
-        login_page = LoginPage(self.driver)
-        login_page.login_with_credentials('', '')
-
-        assert login_page.get_element_text(by_locator=Locators.LoginPage.email_msg) == \
-               NotificationMessages.LoginPageValidation.email_required
-        assert login_page.get_element_text(by_locator=Locators.LoginPage.password_msg) == \
-               NotificationMessages.LoginPageValidation.password_required
-
-    @pytest.mark.parametrize('input_username, input_password', [
-        ('chavdajigna985@gmail.com', '12345'), ('test@cbp', '123456'), ('jr21029', '123456')])
-    def test_login_invalid_credentials(self, input_username, input_password):
-        """
-        Test Steps:
-        1. Keep blank Email
-        2. Keep blank Password
-        3. Click on Login Button
-
-        Scenario Tested:
-        [x] User should not do login in application with invalid credentials.
-        """
-        # HeaderPage(self.driver).do_logout()
-
-        login_page = LoginPage(self.driver)
-        login_page.login_with_credentials(input_username, input_password)
-
-        if '@' in input_username:
-            assert login_page.get_element_text(by_locator=Locators.LoginPage.credentials_msg) == \
-                   NotificationMessages.LoginPageValidation.invalid_credentials
-        else:
-            assert login_page.get_element_text(by_locator=Locators.LoginPage.invalid_email_error) == \
-                   NotificationMessages.LoginPageValidation.invalid_email_error
+    # def test_login_blank_credentials(self):
+    #     """
+    #     Test Steps:
+    #     1. Keep blank Email
+    #     2. Keep blank Password
+    #     3. Click on Login Button
+    #
+    #     Scenario Tested:
+    #     [x] User should not do login in application with blank credentials.
+    #     """
+    #     # HeaderPage(self.driver).do_logout()
+    #
+    #     login_page = LoginPage(self.driver)
+    #     login_page.login_with_credentials('', '')
+    #
+    #     assert login_page.get_element_text(by_locator=Locators.LoginPage.email_msg) == \
+    #            NotificationMessages.LoginPageValidation.email_required
+    #     assert login_page.get_element_text(by_locator=Locators.LoginPage.password_msg) == \
+    #            NotificationMessages.LoginPageValidation.password_required
+    #
+    # @pytest.mark.parametrize('input_username, input_password', [
+    #     ('chavdajigna985@gmail.com', '12345'), ('test@cbp', '123456'), ('jr21029', '123456')])
+    # def test_login_invalid_credentials(self, input_username, input_password):
+    #     """
+    #     Test Steps:
+    #     1. Keep blank Email
+    #     2. Keep blank Password
+    #     3. Click on Login Button
+    #
+    #     Scenario Tested:
+    #     [x] User should not do login in application with invalid credentials.
+    #     """
+    #     HeaderPage(self.driver).do_logout()
+    #
+    #     login_page = LoginPage(self.driver)
+    #     login_page.login_with_credentials(input_username, input_password)
+    #
+    #     if '@' in input_username:
+    #         assert login_page.get_element_text(by_locator=Locators.LoginPage.credentials_msg) == \
+    #                NotificationMessages.LoginPageValidation.invalid_credentials
+    #     else:
+    #         assert login_page.get_element_text(by_locator=Locators.LoginPage.invalid_email_error) == \
+    #                NotificationMessages.LoginPageValidation.invalid_email_error
 
     @pytest.mark.parametrize('username, password', [
         ("chavdajigna985@gmail.com", "123456"), ("jr21029@gmail.com", "123456")])
@@ -104,7 +104,7 @@ class TestLoginPage:
         Scenario Tested:
         [x] User should do login successfully in product.
         """
-        # HeaderPage(self.driver).do_logout()
+        HeaderPage(self.driver).do_logout()
 
         login_page = LoginPage(self.driver)
         login_page.login_with_credentials(username=username, password=password)

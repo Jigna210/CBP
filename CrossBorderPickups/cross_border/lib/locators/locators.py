@@ -9,7 +9,7 @@ class Locators:
     table_row = 'table[class*="cursor-pointer"] tbody tr'
     modal_table_row = 'table[class*="table-hover"] tbody tr'
     modal = (By.CSS_SELECTOR, 'div.modal-content')
-    ps_modal = (By.CSS_SELECTOR, 'mat-dialog-container[class*="mat-dialog-container"]')
+    ops_modal = (By.CSS_SELECTOR, 'mat-dialog-container[class*="mat-dialog-container"]')
     modal_title = (By.CSS_SELECTOR, 'div.modal-header h4')
     ops_modal_title = (By.CSS_SELECTOR, 'h2[class="mat-dialog-title"]')
     modal_close_button = (By.CSS_SELECTOR, 'div.modal-footer button[class*="btn-light"]')

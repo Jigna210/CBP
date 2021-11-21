@@ -17,11 +17,15 @@ from CrossBorderPickups.cross_border.lib.locators.locators import Locators
 from CrossBorderPickups.cross_border.page_objects.UI.HeaderPage.header_page import HeaderPage
 from CrossBorderPickups.cross_border.page_objects.UI.LoginPage.login_page import LoginPage
 
+
+web_driver = None
+
+
 @pytest.fixture(params=[BaseConstants.CHROME_BROWSER])
 def init_driver(request: 'SubRequest'):
     """ Initialize given driver and open application URL """
-    web_driver = None
-
+    # web_driver = None
+    global web_driver
     if request.param == "Chrome":
         if platform.system() == BaseConstants.WINDOWS_SYSTEM:
             web_driver = webdriver.Chrome(executable_path=config.Config.WINDOWS_CHROME_DRIVER_DIR)

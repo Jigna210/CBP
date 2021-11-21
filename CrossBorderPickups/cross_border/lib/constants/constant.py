@@ -46,6 +46,7 @@ class BaseConstants:
         SCANNING_TOOL_PAGE_URL = "scanningTool"
         RATES_PAGE_URL = "rates"
 
+
 class PageConstants:
     """ Constants related to different application web pages """
 

@@ -27,4 +27,4 @@ class Notifications(BasePage):
         :return: notification message
         :rtype: str
         """
-        return self.success_message
+        return self.add_content_success_msg
