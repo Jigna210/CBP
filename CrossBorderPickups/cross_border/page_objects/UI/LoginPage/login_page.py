@@ -1,6 +1,7 @@
-from datetime import datetime
+from selenium.webdriver.support import expected_conditions as EC
+from selenium.webdriver.support.wait import WebDriverWait
 
-from CrossBorderPickups.cross_border.lib.constants.constant import BaseConstants
+from CrossBorderPickups.cross_border.lib.configs.environmental_variables import CBP
 from CrossBorderPickups.cross_border.lib.locators.locators import Locators
 from CrossBorderPickups.cross_border.page_objects.BasePage import BasePage
 
@@ -17,7 +18,8 @@ class LoginPage(BasePage):
 
         :return: None
         """
-        self._do_login(BaseConstants.CUSTOMER_USER_NAME, BaseConstants.DEFAULT_PASSWORD)
+        # self._do_login(BaseConstants.CUSTOMER_USER_NAME, BaseConstants.DEFAULT_PASSWORD)
+        self._do_login(CBP.CBP_USERNAME, CBP.CBP_PASSWORD)
 
     def login_with_credentials(self, username: str, password: str) -> None:
         """
@@ -54,6 +56,24 @@ class LoginPage(BasePage):
         """
         self.click(by_locator=Locators.LoginPage.user_icon)
         self.click(by_locator=Locators.LoginPage.logout_button)
+        
+    def login_in_portal_with_credentials(self, driver_instance, portal_url: str, user_name: str, password: str) -> None:
+        """
+        Helper function to login into given portal URL with given username and password
+
+        :param driver_instance: driver instance
+        :param str portal_url: URL of application in which user to be login
+        :param str user_name: user name to get login into application
+        :param str password: password to get login into application
+        :return: None
+        """
+        driver_instance.get(url=portal_url)
+        self.login_with_credentials(username=user_name, password=password)
+
+        expected_locator = Locators.HeaderPage.operation_button if "-ops-" in driver_instance.current_url else \
+            Locators.HeaderPage.user_avatar
+        self.wait_for_element(lambda: WebDriverWait(driver_instance, 10).until(EC.visibility_of_element_located(
+            expected_locator)), waiting_for="dashboard gets displayed after login")
 
     def do_user_can_sign_up_personal_account(self) -> None:
         """
