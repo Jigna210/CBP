@@ -1,5 +1,6 @@
 from selenium.webdriver.remote.webelement import WebElement
 
+from CrossBorderPickups.cross_border.lib.constants.constant import PageConstants
 from CrossBorderPickups.cross_border.lib.locators.locators import Locators
 from CrossBorderPickups.cross_border.lib.utility.date_picker import GenericDatePicker
 from CrossBorderPickups.cross_border.lib.utility.drop_down import GenericDropDown
@@ -9,20 +10,15 @@ class NewPackagesPage(GenericDropDown, GenericDatePicker):
     """ Page Object class for New Packages Page """
 
     new_package_locator = Locators.NewPackagesPage
+    package_type_constant = PageConstants.NewPackagePage.PackageType
 
     def __init__(self, driver):
         super().__init__(driver)
 
-    def fill_customer_information(self, customer_name: str) -> None:
-        """
-        Fills given customer name into customer information section
-
-        :param str customer_name: customer name
-        :return: None
-        """
-        self.select_result_value_from_auto_suggestion_drop_down(
-            field_locator=self.new_package_locator.full_name, result_locator=self.new_package_locator.full_name_results,
-            option_value=customer_name)
+    @property
+    def package_type(self) -> str:
+        """ Returns package type """
+        return self.get_element_text(by_locator=self.new_package_locator.package_type).strip()
 
     def fill_package_information(self, **kwargs) -> None:
         """
@@ -39,9 +35,13 @@ class NewPackagesPage(GenericDropDown, GenericDatePicker):
             "height": package_info_locator.height_field}
 
         for key in kwargs.keys():
-            if key in ["status", "carrier", "condition", "vendor"]:
-                self.select_result_value_from_auto_suggestion_drop_down(result_locator=Locators.auto_suggestion_results,
-                                                                        option_value=kwargs.get(key), field_name=key)
+            if key in ["full_name", "status", "incoming_carrier", "condition", "vendor"]:
+                field_locator = self.new_package_locator.full_name if key == "full_name" else None
+                field_name = None if key == "full_name" else key
+
+                self.select_result_value_from_auto_suggestion_drop_down(
+                    field_locator=field_locator, result_locator=Locators.auto_suggestion_results,
+                    option_value=kwargs.get(key), field_name=field_name)
             elif key in ["tracking_number", "weight", "length", "width", "height"]:
                 self.enter_text(by_locator=element_locator_dict[key], value=kwargs.get(key))
             else:
@@ -57,19 +57,17 @@ class NewPackagesPage(GenericDropDown, GenericDatePicker):
         add_content_locator = self.new_package_locator.AddContent
 
         element_locator_dict = {
-            "category": add_content_locator.category_or_description, "quantity": add_content_locator.content_quantity,
-            "value": add_content_locator.content_value, "description": add_content_locator.category_or_description,
-            "country_origin": "coo"}
+            "category": "category", "quantity": add_content_locator.content_quantity, "country_origin": "coo",
+            "value": add_content_locator.content_value, "description": add_content_locator.category_or_description}
 
         for key in kwargs.keys():
             if key in ["quantity", "value", "description"]:
                 self.enter_text(by_locator=element_locator_dict[key], value=kwargs.get(key))
             else:
-                field_name = element_locator_dict[key] if key == "country_origin" else None
-                field_locator = element_locator_dict[key] if key == "category" else None
+                field_name = element_locator_dict[key] if key == "category" else None
 
                 self.select_result_value_from_auto_suggestion_drop_down(
-                    field_locator=field_locator, option_value=kwargs.get(key), field_name=field_name,
+                    option_value=kwargs.get(key), field_name=field_name,
                     result_locator=Locators.auto_suggestion_results)
 
     def fill_additional_fees_information(self, **kwargs) -> None:
@@ -82,24 +80,6 @@ class NewPackagesPage(GenericDropDown, GenericDatePicker):
         self.select_result_value_from_auto_suggestion_drop_down(field_name="admin_fee", option_value=kwargs.get(
             "admin_fee"), result_locator=Locators.auto_suggestion_results)
         self.click(by_locator=self.new_package_locator.package_separation_checkbox)
-
-    def fill_new_package_details(self, **kwargs) -> None:
-        """
-        Fills given new package details into new package form
-
-        :param kwargs: package details to be filled
-        :return: None
-        """
-        self.fill_customer_information(customer_name=kwargs.get("full_name"))
-        self.fill_package_information(**kwargs)
-
-        if "content_info" in kwargs:
-            self.click(by_locator=self.new_package_locator.add_content_button)
-            self.fill_content_information(kwargs=kwargs.get("content_info"))
-            self.click(by_locator=self.new_package_locator.AddContent.add_button)
-
-        if "other_info" in kwargs:
-            self.fill_additional_fees_information(kwargs=kwargs.get("other_info"))
 
     def get_element_of_required_field_label(self, field_name: str) -> WebElement:
         """
@@ -138,3 +118,24 @@ class NewPackagesPage(GenericDropDown, GenericDatePicker):
             element_name)
 
         return self.find_element_by_xpath(locator_value=locator_value)
+
+    def get_expected_package_type(self, pkg_weight: int) -> str:
+        """
+        Returns expected package type based on package weight
+
+        :param int pkg_weight: package weight
+        :return: expected package type
+        :rtype: str
+        """
+        if pkg_weight <= 1:
+            pkg_type = self.package_type_constant.LIGHT
+        elif 1 < pkg_weight <= 10:
+            pkg_type = self.package_type_constant.REGULAR
+        elif 10 < pkg_weight <= 30:
+            pkg_type = self.package_type_constant.LARGE
+        elif 30 < pkg_weight <= 100:
+            pkg_type = self.package_type_constant.OVERSIZE
+        else:
+            pkg_type = self.package_type_constant.SKID
+
+        return pkg_type
