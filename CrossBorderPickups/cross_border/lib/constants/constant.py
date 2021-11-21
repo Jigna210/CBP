@@ -52,17 +52,14 @@ class PageConstants:
     class PackagesPage:
         """ Constants related to Packages Page """
         NO_RECORD_MESSAGE = "No Records"
-        PACKAGE_STATUS = "Status"
         PACKAGE_ID = "Package Id"
-        PACKAGE_RECEIVED_DATE = "Received"
+        PACKAGE_STATUS = "Status"
+        PACKAGE_RECEIVED = "Received"
         PACKAGE_RECEIVED_FROM = "Received From"
         PACKAGE_SIZE = "Size"
-        PACKAGE_TRACKING_NUMBER = "Tracking Number"
-        PACKAGE_CARRIER = "Carrier"
-        PACKAGE_CONTENTS = "PACKAGE CONTENTS"
-        PENDING_ORDER_CREATION = "Pending Order Creation"
         PACKAGE_TRACKING_NUMBER = "Incoming Carrier Tracking Number"
         PACKAGE_CARRIER = "Incoming Carrier"
+        PACKAGE_CONTENTS = "PACKAGE CONTENTS"
         CANADIAN_PROVINCES = ["Alberta", "British Columbia", "Manitoba", "New Brunswick", "Newfoundland and Labrador",
                               "Northwest Territories", "Nova Scotia", "Nunavut", "Ontario", "Prince Edward Island",
                               "Quebec", "Saskatchewan", "Yukon"]
