@@ -1,7 +1,8 @@
 import pytest
 
-from CrossBorderPickups.cross_border.lib.constants.constant import PageConstants
+from CrossBorderPickups.cross_border.lib.constants.constant import PageConstants, BaseConstants
 from CrossBorderPickups.cross_border.lib.utility.side_nav import SideNavigation
+from CrossBorderPickups.cross_border.page_objects.UI.LoginPage.login_page import LoginPage
 
 
 @pytest.mark.usefixtures("login")
@@ -31,15 +32,34 @@ class TestOperationsPage:
             - Orders
             - Customer Accounts
         """
+        app_url = BaseConstants.OPERATION_PORTAL_URL
+        app_user_name = BaseConstants.OPERATION_PORTAL_USERNAME
+        app_password = BaseConstants.OPERATION_PORTAL_PASSWORD
+
+        LoginPage(self.driver).login_in_portal_with_credentials(driver_instance=self.driver, portal_url=app_url,
+                                                                user_name=app_user_name, password=app_password)
+
+        side_nav_panel_constant = PageConstants.SideNavigationPanel
+
+        side_nav_options_dict = {
+            side_nav_panel_constant.OPS_SHOP_AND_SHIP: side_nav_panel_constant.ShopAndShip.OPS_SHOP_AND_SHIP_OPTIONS,
+            side_nav_panel_constant.ECOMMERCE_SHIPPING:
+                side_nav_panel_constant.EcommerceShipping.ECOMMERCE_SHIPPING_OPTIONS,
+            side_nav_panel_constant.CUSTOMER_SERVICE: [side_nav_panel_constant.CustomerService.CUSTOMER_ACCOUNT],
+            side_nav_panel_constant.ADMIN_PANEL: side_nav_panel_constant.AdminPanel.USER_ACCOUNT_MANAGEMENT}
+
         side_nav_panel = SideNavigation(self.driver)
-        ops_menu_constant = PageConstants.SideNavigationPanel.Operations
-        cs_menu_constant = PageConstants.SideNavigationPanel.CustomerService
 
-        for sub_menu in [ops_menu_constant.NEW_PACKAGE, ops_menu_constant.PACKAGES, ops_menu_constant.CUSTOMS_FORMS,
-                         ops_menu_constant.SCANNING_TOOL, ops_menu_constant.RATES, cs_menu_constant.ORDERS,
-                         cs_menu_constant.CUSTOMER_ACCOUNT]:
-            sub_menu_element = side_nav_panel.get_element_of_side_navigation_option(
-                menu=PageConstants.SideNavigationPanel.OPERATIONS, sub_menu=sub_menu)
+        for side_nav_menu, side_nav_sub_menu in side_nav_options_dict.items():
+            side_nav_menu_element = side_nav_panel.get_element_of_side_nav_panel(menu=side_nav_menu)
 
-            assert side_nav_panel.is_element_visible(by_locator=sub_menu_element), \
-                "'{}' menu is getting missing or mismatched on side navigation panel.".format(sub_menu)
+            assert side_nav_panel.is_element_visible(by_locator=side_nav_menu_element), \
+                "'{}' menu is getting missing or mismatched on side navigation panel.".format(side_nav_menu)
+
+            for option in side_nav_sub_menu:
+                sub_menu_element = side_nav_panel.get_element_of_side_nav_option(
+                    menu=side_nav_menu, sub_menu=option)
+
+                assert side_nav_panel.is_element_visible(by_locator=sub_menu_element), \
+                    "'{}' option is getting missing or mismatched under '{}' menu on side navigation panel.".format(
+                        option, side_nav_menu)
