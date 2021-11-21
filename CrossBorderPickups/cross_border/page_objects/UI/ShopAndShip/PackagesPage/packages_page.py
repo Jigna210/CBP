@@ -1,11 +1,11 @@
 import random
+import string
 from datetime import date
 
 from selenium.webdriver.remote.webelement import WebElement
 from selenium.webdriver.support import expected_conditions as EC
 from selenium.webdriver.support.wait import WebDriverWait
 
-from CrossBorderPickups.cross_border.lib.configs.environmental_variables import CBP
 from CrossBorderPickups.cross_border.lib.constants.constant import PageConstants, BaseConstants
 from CrossBorderPickups.cross_border.lib.locators.locators import Locators
 from CrossBorderPickups.cross_border.lib.utility.drop_down import GenericDropDown
@@ -76,7 +76,27 @@ class PackagesList(GenericBaseTable):
         """
         all_rows = self.modal_table_rows if table_on_modal else self.table_rows
 
-        return [row.text.split()[0] for row in all_rows]
+        return [row.text.split()[0].split("\n")[0] for row in all_rows]
+
+    def get_package_id_from_other_field_value(self, package_header: str, values: list) -> list:
+        """
+        Returns all available packages id from package list table
+
+        :param str package_header: packages list table header like "Package Id", "Status", etc...
+        :param list values: value from given package header rows
+        :return: list of packages id
+        :rtype: list
+        """
+        package_ids = []
+        package_header_index_dict = {"Package Id": 1, "Status": 2, "Received": 3, "Received From": 4, "Size": 5,
+                                     "Incoming Carrier Tracking Number": 6, "Incoming Carrier": 7}
+
+        for value in values:
+            for row in self.table_rows:
+                if value == row.find_elements_by_tag_name("td")[package_header_index_dict[package_header]].text:
+                    package_ids.append(row.find_elements_by_tag_name("td")[1].text)
+
+        return package_ids
 
     def select_package_by_id(self, package_id: str, element_on_modal: bool = False, is_select: bool = True) -> None:
         """
@@ -103,46 +123,21 @@ class PackagesList(GenericBaseTable):
         :rtype: dict
         """
         package_details = {}
-
         package_constant = PageConstants.PackagesPage
-        field_number_dict = {package_constant.PACKAGE_RECEIVED_DATE: 4,
-                             package_constant.PACKAGE_SIZE: 5, package_constant.PACKAGE_TRACKING_NUMBER: 6}
+        package_header_index_dict = {
+            package_constant.PACKAGE_ID: 1, package_constant.PACKAGE_STATUS: 2, package_constant.PACKAGE_RECEIVED: 3,
+            package_constant.PACKAGE_RECEIVED_FROM: 4, package_constant.PACKAGE_SIZE: 5,
+            package_constant.PACKAGE_TRACKING_NUMBER: 6, package_constant.PACKAGE_CARRIER: 7}
 
         for field in fields:
             for row in self.table_rows:
-                row_text = row.text.split()
+                table_data = row.find_elements_by_tag_name("td")
 
-                if row_text[0] == package_id:
-                    if field == package_constant.PACKAGE_STATUS:
-                        expected_value = " ".join(row_text[1:4])
-                    elif field == package_constant.PACKAGE_CARRIER:
-                        expected_value = " ".join(row_text[7:9])
-                    else:
-                        expected_value = field_number_dict[field]
-
-                    package_details[field] = expected_value
+                if table_data[1].text == package_id:
+                    package_details[field] = table_data[package_header_index_dict[field]].text
                     break
 
         return package_details
-
-    def get_package_id_of_pending_order_creation(self, package_ids: list) -> list:
-        """
-        Returns id of those packages whose status has "Pending order creation"
-
-        :param list package_ids: All packages ids
-        :return: ids of "Pending order creation" package
-        :rtype: list
-        """
-        pending_order_creation_ids = []
-        package_constant = PageConstants.PackagesPage
-
-        for package_id in package_ids:
-            package_status = self.get_package_details_by_id(package_id=package_id,
-                                                            fields=[package_constant.PACKAGE_STATUS])['Status']
-            if package_status == package_constant.PENDING_ORDER_CREATION:
-                pending_order_creation_ids.append(package_id)
-
-        return pending_order_creation_ids
 
     def get_element_of_content_edit_delete_icon(self, package_id: str, category: str, locator_value: str) -> WebElement:
         """
@@ -215,8 +210,7 @@ class CreateOrderDropDown(GenericDropDown, PackagesList):
         :param locator_value: UI locator value
         :return: WebElement
         """
-        return self.find_element_by_css_selector(locator_value='input[type="radio"][id="{}"]'.format(
-            locator_value.lower()))
+        return self.find_element_by_css_selector(locator_value='input[id="{}"]'.format(locator_value.lower()))
 
     def fill_payment_details(self, **kwargs) -> None:
         """
@@ -258,18 +252,14 @@ class CreateOrderDropDown(GenericDropDown, PackagesList):
         :param kwargs: shipping address info that to be fill
         :return: None
         """
-        shipping_address_dict = {
-            "shipping_name": self.create_order_locators.shipping_address_name,
-            "address_line_1": self.create_order_locators.shipping_address_line_1,
-            "address_line_2": self.create_order_locators.shipping_address_line_2,
-            "shipping_city": self.create_order_locators.shipping_address_city,
-            "shipping_postal_code": self.create_order_locators.shipping_address_postal_code}
+        shipping_address_dict = {"shipping_name": self.create_order_locators.shipping_address_name,
+                                 "shipping_address": self.create_order_locators.select_mail_address}
 
         for key_data in list(shipping_address_dict.keys()):
-            self.enter_text(by_locator=shipping_address_dict[key_data], value=kwargs.get(key_data))
-
-        for item in ["shipping_province", "shipping_country"]:
-            self.select_value_from_drop_down_results(option_value=kwargs.get(item))
+            if key_data == "shipping_name":
+                self.enter_text(by_locator=shipping_address_dict[key_data], value=kwargs.get(key_data))
+            else:
+                self.select_value_from_drop_down_results(option_value=kwargs.get(key_data))
 
     def fill_billing_address_details(self, **kwargs) -> None:
         """
@@ -280,7 +270,7 @@ class CreateOrderDropDown(GenericDropDown, PackagesList):
         """
         billing_locator = self.create_order_locators
 
-        billing_address_dict = {"address": billing_locator.address_field, "state": billing_locator.state_field,
+        billing_address_dict = {"address": billing_locator.address_field, "state": billing_locator.province_field,
                                 "city": billing_locator.city_field, "postal_code": billing_locator.postal_code_field}
 
         for key_data in list(billing_address_dict.keys()):
@@ -315,11 +305,15 @@ class CreateOrderDropDown(GenericDropDown, PackagesList):
         """
         user_name = "Jiang Chad"
         current_year = date.today().year
-        user_email = CBP.CBP_USERNAME
+        user_email = "{}{}{}@gmail.com".format(''.join(
+            random.choice(string.ascii_letters) for _ in range(8)), random.choice("!#$%&*+-/?^_"), ''.join(
+            random.choice(string.digits) for _ in range(5)))
+
         card_number = random.sample(self.create_order_constants.PAYMENT_CARD_NUMBERS, k=1)[0]
         exp_month = random.sample([m for m in range(1, 13)], k=1)[0]
         exp_year = random.sample([y for y in range(current_year + 1, current_year + 6)], k=1)[0]
         cvc_number = random.randint(100, 999)
+
         postal_code = random.sample(PageConstants.PackagesPage.POSTAL_CODES, k=1)[0]
         city = random.sample(PageConstants.PackagesPage.CANADIAN_CITIES, k=1)[0]
         province = random.sample(PageConstants.PackagesPage.CANADIAN_PROVINCES, k=1)[0]
@@ -414,7 +408,8 @@ class DiscardPackagesDropDown(GenericDropDown, PackagesList):
                                                         '@class, "table-bordered")]//tbody//tr[{}]//td[2]'.
                                           format(discard_details_dict[element_for]))
 
-    def get_expected_total_charge(self, discard_package_count: int) -> int:
+    @staticmethod
+    def get_expected_total_charge(discard_package_count: int) -> int:
         """
         Returns total charge of discarded package from given discard package count
 
