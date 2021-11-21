@@ -5,8 +5,6 @@ from CrossBorderPickups.cross_border.lib.messages.message import NotificationMes
 from CrossBorderPickups.cross_border.page_objects.UI.HeaderPage.header_page import HeaderPage
 from CrossBorderPickups.cross_border.page_objects.UI.LoginPage.login_page import LoginPage
 from CrossBorderPickups.cross_border.page_objects.UI.ShopAndShip.PackagesPage.packages_page import PackagesPage
-# from CrossBorderPickups.cross_border.page_objects.UI.ShipmentPage.shipment_page import ShipmentPage
-from CrossBorderPickups.cross_border.tests.test_base import BaseTest
 
 
 class TestLoginPage(BaseTest):
@@ -81,7 +79,7 @@ class TestLoginPage(BaseTest):
         Scenario Tested:
         [x] User should not do login in application with invalid credentials.
         """
-        HeaderPage(self.driver).do_logout()
+        # HeaderPage(self.driver).do_logout()
 
         login_page = LoginPage(self.driver)
         login_page.login_with_credentials(input_username, input_password)
@@ -105,7 +103,7 @@ class TestLoginPage(BaseTest):
         Scenario Tested:
         [x] User should do login successfully in product.
         """
-        HeaderPage(self.driver).do_logout()
+        # HeaderPage(self.driver).do_logout()
 
         login_page = LoginPage(self.driver)
         login_page.login_with_credentials(username=username, password=password)
