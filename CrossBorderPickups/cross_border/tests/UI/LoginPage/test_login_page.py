@@ -7,7 +7,8 @@ from CrossBorderPickups.cross_border.page_objects.UI.LoginPage.login_page import
 from CrossBorderPickups.cross_border.page_objects.UI.ShopAndShip.PackagesPage.packages_page import PackagesPage
 
 
-class TestLoginPage(BaseTest):
+@pytest.mark.usefixtures("login")
+class TestLoginPage:
     """ Covers tests related to user login """
 
     def test_user_can_login_with_default_credentials(self):
