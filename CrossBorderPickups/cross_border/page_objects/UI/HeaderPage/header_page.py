@@ -14,5 +14,8 @@ class HeaderPage(BasePage):
 
         :return: None
         """
-        self.click(by_locator=Locators.HeaderPage.user_avatar)
+        expected_locator = Locators.HeaderPage.operation_button if "-ops-" in self.get_url() else \
+            Locators.HeaderPage.user_avatar
+
+        self.click(by_locator=expected_locator)
         self.click(by_locator=Locators.HeaderPage.logout_option)
