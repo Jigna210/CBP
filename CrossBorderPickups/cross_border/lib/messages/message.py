@@ -14,10 +14,13 @@ class NotificationMessages:
         update_content_success_msg = "Package Content updated successfully"
         create_order_success_msg = "Order created successfully"
         discard_package_success_msg = "Package discarded successfully"
+        link_packages_error_msg = "You cannot link packages with different Vendors"
+        link_packages_success_msg = "Package link successful"
+        unlink_packages_success_msg = "Package unlink successful"
 
     class NewPackagePage:
         """ Notifications messages from New Packages page """
-        create_package_success_msg = "Package created successfully"
+        create_package_success_msg = "Package created"
         full_name_error_msg = "Account is required"
         pkg_status_error_msg = "Status is required"
         date_received_error_msg = "Received Date is required"
