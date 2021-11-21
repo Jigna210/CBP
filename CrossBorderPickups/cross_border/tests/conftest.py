@@ -145,35 +145,35 @@ def get_screenshot_filename(test_name: str, test_status: BaseConstants.Status = 
     return "{}{}".format(filename_prefix, screenshot_filename)
 
 
-@pytest.hookimpl(tryfirst=True, hookwrapper=True)
-def pytest_runtest_makereport(item, call):
-    """ Pytest hook that generates screenshots for failed tests """
-    outcome = yield
-
-    driver = web_driver
-    pytest_html = item.config.pluginmanager.getplugin('html')
-
-    report = outcome.get_result()
-    test_status = _test_status(call, report)
-
-    if call.when in ('setup', 'call'):
-        item.cls.has_failed = test_status in (BaseConstants.Status.Failed, BaseConstants.Status.Error)
-
-    if not report.passed:
-        report.exception = getattr(call.excinfo.type, '__name__', " ")
-        report.exception_text = getattr(call.excinfo.value, 'msg', " ")
-
-        path, class_name, test_name = item.nodeid.split("::")
-        file_name = get_screenshot_filename(test_name=test_name, test_status=test_status)
-
-        # BasePage(driver).take_screenshot(filename=file_name)
-        extra = getattr(report, 'extra', [])
-
-        for screenshot in getattr(report, 'CBP_screenshots', []):
-            with open(screenshot, "rb") as image_file:
-                encoded_string = base64.b64encode(image_file.read())
-                base64_image = encoded_string.decode()
-                extra.append(pytest_html.extras.png(base64_image))
-
-        report.extra = extra
+#@pytest.hookimpl(tryfirst=True, hookwrapper=True)
+# def pytest_runtest_makereport(item, call):
+#     """ Pytest hook that generates screenshots for failed tests """
+#     outcome = yield
+# 
+#     driver = web_driver
+#     pytest_html = item.config.pluginmanager.getplugin('html')
+# 
+#     report = outcome.get_result()
+#     test_status = _test_status(call, report)
+# 
+#     if call.when in ('setup', 'call'):
+#         item.cls.has_failed = test_status in (BaseConstants.Status.Failed, BaseConstants.Status.Error)
+# 
+#     if not report.passed:
+#         report.exception = getattr(call.excinfo.type, '__name__', " ")
+#         report.exception_text = getattr(call.excinfo.value, 'msg', " ")
+# 
+#         path, class_name, test_name = item.nodeid.split("::")
+#         file_name = get_screenshot_filename(test_name=test_name, test_status=test_status)
+# 
+#         # BasePage(driver).take_screenshot(filename=file_name)
+#         extra = getattr(report, 'extra', [])
+# 
+#         for screenshot in getattr(report, 'CBP_screenshots', []):
+#             with open(screenshot, "rb") as image_file:
+#                 encoded_string = base64.b64encode(image_file.read())
+#                 base64_image = encoded_string.decode()
+#                 extra.append(pytest_html.extras.png(base64_image))
+# 
+#         report.extra = extra
 
