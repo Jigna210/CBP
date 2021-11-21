@@ -19,7 +19,7 @@ class BaseConstants:
     ERROR_COLOR_CODE = "#F44336"
     SCREENSHOT_EXTENSION = "png"
     
-     class Status(Enum):
+    class Status(Enum):
         """ Test statuses Value represents abbreviated prefix """
         Skipped = 'S'
         Failed = 'F'
@@ -146,7 +146,7 @@ class PageConstants:
             VENDORS = [UA, MACY, WALMART_COM, AOSOM, JLS, FULL_MOON_EMPIRE, KRAFT_WERKS, BOB_KING, MERCOLA_COM,
                        BAY_LAKE]
 
-       class PackageType:
+        class PackageType:
             """ Constants related to Package type from New Package page """
             LARGE = "Large"
             LIGHT = "Light"
