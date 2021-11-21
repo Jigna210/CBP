@@ -32,8 +32,14 @@ class BasePage(object):
         :param str url: page endpoint
         :return: None
         """
-        app_url = "#/operations/" + url if "-ops-" in self.base_url else url
-        page_url = os.path.join(self.base_url, app_url) if url else self.base_url
+        base_url = self.get_url() if url else self.base_url
+
+        if url:
+            base_url = "/".join(base_url.split("/")[:3]) + "/"
+
+        app_url = "#/operations/" + url if "-ops-" in base_url else url
+        page_url = os.path.join(base_url, app_url) if url else base_url
+
         self.driver.get(page_url)
         self.driver.implicitly_wait(time_to_wait=10)
 
@@ -106,7 +112,11 @@ class BasePage(object):
         :param WebElement by_locator: UI locator
         :return: None
         """
-        element = WebDriverWait(self.driver, 10).until(EC.visibility_of_element_located(by_locator))
+        if isinstance(by_locator, tuple):
+            element = WebDriverWait(self.driver, 10).until(EC.visibility_of_element_located(by_locator))
+        else:
+            element = by_locator
+
         element.click()
 
     def click_element_by_javascript(self, element: WebElement) -> None:
@@ -163,6 +173,30 @@ class BasePage(object):
         element = WebDriverWait(self.driver, 10).until(EC.visibility_of_element_located(by_locator))
         return element.text
 
+    def get_attribute_value(self, by_locator: WebElement, attribute_name: str) -> str:
+        """
+        Returns value of given attribute from given locator
+
+        :param WebElement by_locator: UI locator
+        :param str attribute_name: attribute name whose value to be fetch
+        :return: text value of element attribute
+        :rtype: str
+        """
+        if isinstance(by_locator, tuple):
+            element = WebDriverWait(self.driver, 10).until(EC.visibility_of_element_located(by_locator))
+        else:
+            element = by_locator
+
+        return element.get_attribute(name=attribute_name)
+
+    def refresh_page(self) -> None:
+        """
+        Refreshes current web page
+
+        :return: None
+        """
+        self.driver.refresh()
+
     def is_element_enabled(self, by_locator: WebElement) -> bool:
         """
         Checks that web element located at given locator is enabled
@@ -171,7 +205,11 @@ class BasePage(object):
         :return: True is web element is enabled else False
         :rtype: bool
         """
-        element = WebDriverWait(self.driver, 10).until(EC.visibility_of_element_located(by_locator))
+        if isinstance(by_locator, tuple):
+            element = WebDriverWait(self.driver, 10).until(EC.visibility_of_element_located(by_locator))
+        else:
+            element = by_locator
+
         return element.is_enabled()
 
     def is_element_visible(self, by_locator: WebElement) -> bool:
