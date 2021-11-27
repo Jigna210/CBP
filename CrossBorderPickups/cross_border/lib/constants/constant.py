@@ -74,7 +74,7 @@ class PageConstants:
             AVAILABLE_FOR_PICKUP = "Available for Pickup"
             INFORMATION_REQUIRED = "Information Required"
             IN_TRANSIT = "In Transit"
-            PENDING_ORDER_CREATION = "Pending Order Creation"
+            PENDING_PAYMENT = "Pending Payment"
             READY_FOR_TRANSPORT = "Ready for Transport"
 
         class AddContent:
@@ -115,8 +115,8 @@ class PageConstants:
         class PackageStatus:
             """ Constants related to Package Status from New Package page """
             INFORMATION_REQUIRED = "Information Required"
-            PENDING_ORDER_CREATION = "Pending Order Creation"
-            STATUSES_FOR_POSTING = [INFORMATION_REQUIRED, PENDING_ORDER_CREATION]
+            PENDING_PAYMENT = "Pending Payment"
+            STATUSES_FOR_POSTING = [INFORMATION_REQUIRED, PENDING_PAYMENT]
 
         class PackageCarrier:
             """ Constants related to Package Carrier from New Package page """
@@ -200,9 +200,9 @@ class PageConstants:
             PACKAGES = "Packages"
             ORDERS = "Orders"
             NEW_PACKAGE = "New Package"
-            CUSTOMS_FORMS_B2C = "Customs Forms - B2C"
-            CUSTOMS_FORMS_B2B = "Customs Forms - B2B"
-            OPS_SHOP_AND_SHIP_OPTIONS = [NEW_PACKAGE, PACKAGES, ORDERS, CUSTOMS_FORMS_B2C, CUSTOMS_FORMS_B2B]
+            # CUSTOMS_FORMS_B2C = "Customs Forms - B2C"
+            # CUSTOMS_FORMS_B2B = "Customs Forms - B2B"
+            OPS_SHOP_AND_SHIP_OPTIONS = [NEW_PACKAGE, PACKAGES, ORDERS]
 
         class Ecommerce:
             """ Constants related to Ecommerce menu """

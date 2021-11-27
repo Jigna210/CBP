@@ -19,11 +19,15 @@ class Locators:
     select_drop_down_arrow = (By.CSS_SELECTOR, 'span[role="presentation"]')
     country_origin_list_panel = (By.CSS_SELECTOR, 'div[class*="results"]')
     drop_down_results = 'div[class*="results"] div[class*="label-content"]'
-    notification_msg_div = (By.CSS_SELECTOR, 'div[class*="notification-msg-opened"]')
-    notification_msg_icon = (By.CSS_SELECTOR, 'div[class*="notification-msg-icon"]')
-    notification_msg_text = (By.CSS_SELECTOR, 'div[class*="notification-msg-body"]')
-    ops_notification_msg_text = (By.CSS_SELECTOR, 'simple-snack-bar.mat-simple-snackbar span')
     auto_suggestion_results = 'span.mat-option-text'
+
+    class Notification:
+        """ Locators related to Notifications messages """
+        notification_msg_div = (By.CSS_SELECTOR, 'div[class*="notification-msg-opened"]')
+        notification_msg_icon = (By.CSS_SELECTOR, 'div[class*="notification-msg-icon"]')
+        notification_msg_text = (By.CSS_SELECTOR, 'div[class*="notification-msg-body"]')
+        ops_notification_msg_text = (By.CSS_SELECTOR, 'simple-snack-bar.mat-simple-snackbar span')
+        notification_close_button = (By.CSS_SELECTOR, 'button[class*="notification-msg-close-button"]')
 
     class SignUpPage:
         """ Locators related to SignUp page """
@@ -66,8 +70,7 @@ class Locators:
 
         page_title = (By.CSS_SELECTOR, 'h4[class="page-title"]')
         no_record_msg = (By.CSS_SELECTOR, 'div[class*="text-center"] h4')
-        create_order_button = (By.XPATH, '//button[contains(@class, "btn-primary") and contains(text(), '
-                                         '"Create Order")]')
+        checkout_button = (By.XPATH, '//button[contains(@class, "btn-primary") and contains(text(), "Checkout")]')
         link_button = (By.XPATH, '//button[contains(@class, "btn-success") and contains(text(), "Link")]')
         unlink_button = (By.XPATH, '//button[contains(@class, "btn-warning") and contains(text(), "Unlink")]')
         discard_button = (By.XPATH, '//button[contains(@class, "btn-danger") and contains(text(), "Discard")]')
@@ -79,19 +82,17 @@ class Locators:
         class CreateOrder:
             """ Locators related to Create Order modal """
             send_to_canada_button = (By.XPATH, '//button[contains(text(), "Send to Canada")]')
-            email_field = (By.CSS_SELECTOR, 'input[formcontrolname="email"]')
             receive_package_method_message = (By.CSS_SELECTOR, 'div[class="my-1"]')
+            select_mail_address = (By.CSS_SELECTOR, '#select-mail-address')
+            email_field = (By.CSS_SELECTOR, 'input[formcontrolname="email"]')
             mail_radio_button = (By.CSS_SELECTOR, 'input[id="mail"]')
             pickup_radio_button = (By.CSS_SELECTOR, 'input[id="pickup"]')
             shipping_address_name = (By.CSS_SELECTOR, 'div[class*="my-1"] input[formcontrolname="name"]')
-            select_mail_address = (By.CSS_SELECTOR, '#select-mail-address')
             state_field = (By.CSS_SELECTOR, 'input[formcontrolname="address_state"]')
             postal_code_field = (By.CSS_SELECTOR, 'div[class="form-group"] input[formcontrolname="address_zip"]')
             region_selection_arrow = (By.CSS_SELECTOR, 'span[role="presentation"]')
             region_text_field = (By.CSS_SELECTOR, 'input[role="textbox"]')
             region_results = (By.CSS_SELECTOR, 'ul[class*="results"] li')
-            receive_package_method_message = (By.CSS_SELECTOR, 'div[class="my-1"]')
-            shipping_address_name = (By.CSS_SELECTOR, 'div[class*="my-1"] input[formcontrolname="name"]')
             shipping_address_line_1 = (By.CSS_SELECTOR, 'div[class*="my-1"] input[formcontrolname="address_line1"]')
             shipping_address_line_2 = (By.CSS_SELECTOR, 'input[class="form-control"]')
             shipping_address_city = (By.CSS_SELECTOR, 'div[class*="my-1"] input[formcontrolname="address_city"]')
@@ -109,7 +110,6 @@ class Locators:
             city_field = (By.CSS_SELECTOR, 'div[class="form-group"] input[formcontrolname="address_city"]')            
             pay_ca_button = (By.CSS_SELECTOR, 'form[class*="ng-pristine"] button[class*="btn-block"]')
             province_field = (By.CSS_SELECTOR, 'select2[formcontrolname="address_state"] span')
-            postal_code_field = (By.CSS_SELECTOR, 'div[class="form-group"] input[formcontrolname="address_zip"]')
             country_field = (By.CSS_SELECTOR, 'select2[formcontrolname="address_country"] span')
             invalid_address_error_msg = (By.CSS_SELECTOR, 'span.text-danger')
             create_order_modal_close_icon = (By.CSS_SELECTOR, 'button.close')
