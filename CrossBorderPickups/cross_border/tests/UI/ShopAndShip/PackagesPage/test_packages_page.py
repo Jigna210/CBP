@@ -1,8 +1,10 @@
 import random
 
 import pytest
+from selenium.webdriver.support import expected_conditions as EC
 from selenium.webdriver.support.expected_conditions import invisibility_of_element_located
 from selenium.webdriver.support.select import Select
+from selenium.webdriver.support.wait import WebDriverWait
 
 from CrossBorderPickups.cross_border.lib.constants.constant import PageConstants
 from CrossBorderPickups.cross_border.lib.helpers.helpers import sleep_execution
@@ -40,12 +42,12 @@ class TestPackagesPage:
         """
         packages_page = PackagesPage(self.driver)
         packages_page.wait_for_element(lambda: packages_page.is_element_visible(
-            by_locator=Locators.PackagesPage.create_order_button), waiting_for="packages page gets loaded")
+            by_locator=Locators.PackagesPage.checkout_button), waiting_for="packages page gets loaded")
 
         packages_list = PackagesList(self.driver)
         pending_order_creation_ids = packages_list.get_package_id_from_other_field_value(
             package_header=self.package_constant.PACKAGE_STATUS,
-            values=[self.status_constant.PENDING_ORDER_CREATION])
+            values=[self.status_constant.PENDING_PAYMENT])
 
         number_of_package = 1 if (select_action == "single" or len(pending_order_creation_ids) == 1) else \
             random.randint(2, len(pending_order_creation_ids))
@@ -70,16 +72,16 @@ class TestPackagesPage:
         """
         packages_page = PackagesPage(self.driver)
         packages_page.wait_for_element(lambda: packages_page.is_element_visible(
-            by_locator=Locators.PackagesPage.create_order_button), waiting_for="packages page gets loaded")
+            by_locator=Locators.PackagesPage.checkout_button), waiting_for="packages page gets loaded")
 
         package_page_locator = Locators.PackagesPage
 
-        for element in [package_page_locator.create_order_button, package_page_locator.link_button,
+        for element in [package_page_locator.checkout_button, package_page_locator.link_button,
                         package_page_locator.unlink_button, package_page_locator.discard_button]:
             assert packages_page.is_element_visible(by_locator=element), \
                 "Any one from 'Create Order', 'Link', 'Unlink' or 'Discard' buttons are missing or it's text mismatch."
 
-            if element in [package_page_locator.create_order_button, package_page_locator.discard_button]:
+            if element in [package_page_locator.checkout_button, package_page_locator.discard_button]:
                 assert packages_page.is_element_enabled(by_locator=element), \
                     "Any one from 'Create Order' or 'Discard' buttons are showing disabled which should be " \
                     "enabled instead."
@@ -90,7 +92,7 @@ class TestPackagesPage:
         package_list = PackagesList(self.driver)
         status_constant = self.package_constant.PackageStatus
         all_packages_id = package_list.get_package_id_from_other_field_value(
-            package_header=self.package_constant.PACKAGE_STATUS, values=[status_constant.PENDING_ORDER_CREATION,
+            package_header=self.package_constant.PACKAGE_STATUS, values=[status_constant.PENDING_PAYMENT,
                                                                          status_constant.INFORMATION_REQUIRED])
 
         enable_disable_buttons = [package_page_locator.link_button, package_page_locator.unlink_button]
@@ -163,7 +165,7 @@ class TestPackagesPage:
         selected_ids = self.select_packages_from_packages_list_table(select_action=select_action, return_ids=True)
 
         packages_page = PackagesPage(self.driver)
-        packages_page.click(by_locator=Locators.PackagesPage.create_order_button)
+        packages_page.click(by_locator=Locators.PackagesPage.checkout_button)
 
         create_order = CreateOrderDropDown(self.driver)
         create_order_locators = Locators.PackagesPage.CreateOrder
@@ -203,7 +205,7 @@ class TestPackagesPage:
 
         all_packages_id = package_list.get_package_id_from_other_field_value(
             package_header=self.package_constant.PACKAGE_STATUS, values=[
-                status_constant.PENDING_ORDER_CREATION, status_constant.AVAILABLE_FOR_PICKUP,
+                status_constant.PENDING_PAYMENT, status_constant.AVAILABLE_FOR_PICKUP,
                 status_constant.READY_FOR_TRANSPORT])
 
         selected_id = all_packages_id[0]
@@ -245,7 +247,7 @@ class TestPackagesPage:
 
         all_packages_id = package_list.get_package_id_from_other_field_value(
             package_header=self.package_constant.PACKAGE_STATUS, values=[
-                status_constant.PENDING_ORDER_CREATION, status_constant.AVAILABLE_FOR_PICKUP,
+                status_constant.PENDING_PAYMENT, status_constant.AVAILABLE_FOR_PICKUP,
                 status_constant.READY_FOR_TRANSPORT])
 
         selected_id = all_packages_id[0]
@@ -330,10 +332,10 @@ class TestPackagesPage:
         """
         package_list = PackagesList(self.driver)
         pending_order_creation_ids = package_list.get_package_id_from_other_field_value(
-            package_header=self.package_constant.PACKAGE_STATUS, values=[self.status_constant.PENDING_ORDER_CREATION])
+            package_header=self.package_constant.PACKAGE_STATUS, values=[self.status_constant.PENDING_PAYMENT])
 
         packages_page_locators = Locators.PackagesPage
-        PackagesPage(self.driver).click(by_locator=packages_page_locators.create_order_button)
+        PackagesPage(self.driver).click(by_locator=packages_page_locators.checkout_button)
 
         create_order = CreateOrderDropDown(self.driver)
         create_order.wait_for_element(lambda: create_order.is_element_visible(
@@ -345,6 +347,8 @@ class TestPackagesPage:
         assert pending_order_creation_ids == package_ids_from_create_modal, \
             "'Create Order' modal shows all packages id instead of to show only package id which status has " \
             "'Pending order creation'."
+
+        create_order.click(by_locator=packages_page_locators.CreateOrder.create_order_modal_close_icon)
 
     @pytest.mark.parametrize('package_receive_method', [create_order_constants.PACKAGE_RECEIVE_BY_MAIL,
                                                         create_order_constants.PACKAGE_RECEIVE_BY_PICKUP])
@@ -362,11 +366,11 @@ class TestPackagesPage:
         [x] Verify user can view post code data textbox in a order details
         """
         packages_page = PackagesPage(self.driver)
-        packages_page.click(by_locator=Locators.PackagesPage.create_order_button)
+        packages_page.click(by_locator=Locators.PackagesPage.checkout_button)
 
         package_list = PackagesList(self.driver)
         pending_order_creation_ids = package_list.get_package_id_from_other_field_value(
-            package_header=self.package_constant.PACKAGE_STATUS, values=[self.status_constant.PENDING_ORDER_CREATION])
+            package_header=self.package_constant.PACKAGE_STATUS, values=[self.status_constant.PENDING_PAYMENT])
         package_id = random.sample(pending_order_creation_ids, k=1)[0]
 
         create_order = CreateOrderDropDown(self.driver)
@@ -457,7 +461,7 @@ class TestPackagesPage:
         selected_ids = self.select_packages_from_packages_list_table(select_action=select_action, return_ids=True)
 
         packages_page = PackagesPage(self.driver)
-        packages_page.click(by_locator=Locators.PackagesPage.create_order_button)
+        packages_page.click(by_locator=Locators.PackagesPage.checkout_button)
 
         create_order = CreateOrderDropDown(self.driver)
         create_order_locators = Locators.PackagesPage.CreateOrder
@@ -524,6 +528,8 @@ class TestPackagesPage:
         discard_package.click(by_locator=discard_package_locators.discard_button)
         discard_package.wait_for_element(lambda: discard_package.is_element_visible(
             by_locator=Locators.PackagesPage.CreateOrder.email_field), waiting_for="discard details page gets loaded")
+
+        discard_package.click(by_locator=Locators.PackagesPage.CreateOrder.create_order_modal_close_icon)
 
     @pytest.mark.parametrize('select_action', ['single', 'multiple'])
     def test_discard_packages_by_filling_discard_and_payment_details_with_single_and_multiple_packages(
@@ -598,37 +604,44 @@ class TestPackagesPage:
         selected_ids = self.select_packages_from_packages_list_table(return_ids=True)
 
         packages_page = PackagesPage(self.driver)
-        packages_page.click(by_locator=Locators.PackagesPage.create_order_button)
+        packages_page.click(by_locator=Locators.PackagesPage.checkout_button)
 
         create_order = CreateOrderDropDown(self.driver)
         create_order_locators = Locators.PackagesPage.CreateOrder
-        create_order.wait_for_element(lambda: create_order.is_element_visible(
-            by_locator=create_order_locators.send_to_canada_button), waiting_for="create order modal gets loaded")
 
-        for package_id in selected_ids:
-            PackagesList(self.driver).select_package_by_id(package_id=package_id, element_on_modal=True)
+        try:
+            create_order.wait_for_element(lambda: create_order.is_element_visible(
+                by_locator=create_order_locators.send_to_canada_button), waiting_for="create order modal gets loaded")
 
-        create_order.click(by_locator=create_order_locators.send_to_canada_button)
-        create_order.wait_for_element(lambda: create_order.is_element_visible(
-            by_locator=create_order_locators.email_field), waiting_for="order details page gets loaded")
+            for package_id in selected_ids:
+                PackagesList(self.driver).select_package_by_id(package_id=package_id, element_on_modal=True)
 
-        create_order.click(by_locator=create_order.get_element_of_package_receive_radio_button(
-            locator_value=self.create_order_constants.PACKAGE_RECEIVE_BY_MAIL))
+            create_order.click(by_locator=create_order_locators.send_to_canada_button)
+            create_order.wait_for_element(lambda: create_order.is_element_visible(
+                by_locator=create_order_locators.email_field), waiting_for="order details page gets loaded")
 
-        select_address = Select(create_order_locators.select_mail_address)
-        all_shipping_address = [address.text for address in select_address.options]
-        address_outside_of_canada = [address for address in all_shipping_address if "CA" not in address]
-        address_to_be_select = random.sample(address_outside_of_canada, k=1)[0]
+            create_order.click_element_by_javascript(element=create_order.get_element_of_package_receive_radio_button(
+                locator_value=self.create_order_constants.PACKAGE_RECEIVE_BY_MAIL))
+            sleep_execution(2)
 
-        select_address.select_by_visible_text(text=address_to_be_select)
-        create_order.wait_for_element(lambda: create_order.is_element_visible(
-            by_locator=create_order_locators.invalid_address_error_msg), waiting_for="error message gets displayed")
+            select_address_element = WebDriverWait(self.driver, 10).until(EC.visibility_of_element_located(
+                create_order_locators.select_mail_address))
+            select_address = Select(select_address_element)
+            all_shipping_address = [address.text for address in select_address.options]
+            address_outside_of_canada = [address for address in all_shipping_address if "US" in address]
+            address_to_be_select = random.sample(address_outside_of_canada, k=1)[0]
 
-        error_message = create_order.get_element_text(by_locator=create_order_locators.invalid_address_error_msg)
+            select_address.select_by_visible_text(text=address_to_be_select)
+            create_order.wait_for_element(lambda: create_order.is_element_visible(
+                by_locator=create_order_locators.invalid_address_error_msg), waiting_for="error message gets displayed")
 
-        assert error_message == self.create_order_constants.INVALID_ADDRESS_ERROR, \
-            "Error message is either missing or mismatched after selecting address of outside the canada as " \
-            "shipping address."
+            error_message = create_order.get_element_text(by_locator=create_order_locators.invalid_address_error_msg)
+
+            assert error_message == self.create_order_constants.INVALID_ADDRESS_ERROR, \
+                "Error message is either missing or mismatched after selecting address of outside the canada as " \
+                "shipping address."
+        finally:
+            create_order.click(by_locator=create_order_locators.create_order_modal_close_icon)
 
     @pytest.mark.parametrize("keyword_type", [
         package_constant.PACKAGE_ID, package_constant.PACKAGE_STATUS, package_constant.PACKAGE_RECEIVED,
@@ -689,7 +702,7 @@ class TestPackagesPage:
         package_list = PackagesList(self.driver)
         status_constant = self.package_constant.PackageStatus
         packages_ids = package_list.get_package_id_from_other_field_value(
-            package_header=self.package_constant.PACKAGE_STATUS, values=[status_constant.PENDING_ORDER_CREATION,
+            package_header=self.package_constant.PACKAGE_STATUS, values=[status_constant.PENDING_PAYMENT,
                                                                          status_constant.INFORMATION_REQUIRED])
 
         package_vendor = package_list.get_package_details_by_id(package_id=packages_ids[0],
@@ -697,19 +710,25 @@ class TestPackagesPage:
         temp_package_vendor = package_vendor[self.package_constant.PACKAGE_RECEIVED_FROM]
         package_list.select_package_by_id(package_id=packages_ids[0])
 
-        for package_id in packages_ids:
+        for package_id in packages_ids[1:]:
             other_vendor = package_list.get_package_details_by_id(package_id=package_id,
                                                                   fields=[self.package_constant.PACKAGE_RECEIVED_FROM])
 
-            if temp_package_vendor != other_vendor:
+            if temp_package_vendor != other_vendor['Received From']:
                 package_list.select_package_by_id(package_id=package_id)
                 break
 
         packages_page.click(by_locator=Locators.PackagesPage.link_button)
-        error_notification = Notifications(self.driver).get_notification_message()
+        sleep_execution(1)
+        notification = Notifications(self.driver)
+        error_notification = notification.get_notification_message()
 
         assert error_notification == NotificationMessages.PackagesPage.link_packages_error_msg, \
             "Error notification message is either missing or mismatched after linking packages of different vendors."
+
+        notification.clear_notification()
+        packages_page.wait_for_element(lambda: packages_page.is_element_visible(
+            by_locator=Locators.HeaderPage.user_avatar), waiting_for="notification message to be disappear")
 
     def test_verify_user_can_link_same_vendors_packages_successfully(self):
         """
@@ -728,8 +747,10 @@ class TestPackagesPage:
         package_list = PackagesList(self.driver)
         status_constant = self.package_constant.PackageStatus
         packages_ids = package_list.get_package_id_from_other_field_value(
-            package_header=self.package_constant.PACKAGE_STATUS, values=[status_constant.PENDING_ORDER_CREATION,
+            package_header=self.package_constant.PACKAGE_STATUS, values=[status_constant.PENDING_PAYMENT,
                                                                          status_constant.INFORMATION_REQUIRED])
+
+        notification = Notifications(self.driver)
 
         try:
             package_vendor = package_list.get_package_details_by_id(
@@ -737,24 +758,30 @@ class TestPackagesPage:
             temp_package_vendor = package_vendor[self.package_constant.PACKAGE_RECEIVED_FROM]
             package_list.select_package_by_id(package_id=packages_ids[0])
 
-            for package_id in packages_ids:
+            for package_id in packages_ids[1:]:
                 same_vendor = package_list.get_package_details_by_id(
                     package_id=package_id, fields=[self.package_constant.PACKAGE_RECEIVED_FROM])
 
-                if temp_package_vendor == same_vendor:
+                if temp_package_vendor == same_vendor['Received From']:
                     package_list.select_package_by_id(package_id=package_id)
                     break
 
             packages_page.click(by_locator=Locators.PackagesPage.link_button)
-            success_notification = Notifications(self.driver).get_notification_message()
+            success_notification = notification.get_notification_message()
 
             assert success_notification == NotificationMessages.PackagesPage.link_packages_success_msg, \
                 "Success notification message is either missing or mismatched after linking packages of same vendors."
+
+            notification.clear_notification()
         finally:
             package_list.select_package_by_id(package_id=packages_ids[0])
             packages_page.click(by_locator=Locators.PackagesPage.unlink_button)
             packages_page.wait_for_element(lambda: packages_page.is_element_visible(
-                by_locator=Locators.notification_msg_text), waiting_for="success notification gets populated")
+                by_locator=Locators.Notification.notification_msg_text), waiting_for="success notification for unlink")
+
+            notification.clear_notification()
+            packages_page.wait_for_element(lambda: packages_page.is_element_visible(
+                by_locator=Locators.HeaderPage.user_avatar), waiting_for="notification message to be disappear")
 
     def test_verify_billing_address_should_same_as_shipping_address(self):
         """
@@ -772,50 +799,59 @@ class TestPackagesPage:
         selected_ids = self.select_packages_from_packages_list_table(return_ids=True)
 
         packages_page = PackagesPage(self.driver)
-        packages_page.click(by_locator=Locators.PackagesPage.create_order_button)
-
-        create_order = CreateOrderDropDown(self.driver)
         create_order_locators = Locators.PackagesPage.CreateOrder
-        create_order.wait_for_element(lambda: create_order.is_element_visible(
-            by_locator=create_order_locators.send_to_canada_button), waiting_for="create order modal gets loaded")
 
-        for package_id in selected_ids:
-            PackagesList(self.driver).select_package_by_id(package_id=package_id, element_on_modal=True)
+        try:
+            packages_page.click(by_locator=Locators.PackagesPage.checkout_button)
 
-        create_order.click(by_locator=create_order_locators.send_to_canada_button)
-        create_order.wait_for_element(lambda: create_order.is_element_visible(
-            by_locator=create_order_locators.email_field), waiting_for="order details page gets loaded")
+            create_order = CreateOrderDropDown(self.driver)
+            create_order.wait_for_element(lambda: create_order.is_element_visible(
+                by_locator=create_order_locators.send_to_canada_button), waiting_for="create order modal gets loaded")
 
-        sleep_execution(time_seconds=5)
-        create_order.click_element_by_javascript(element=create_order_locators.mail_radio_button)
+            for package_id in selected_ids:
+                PackagesList(self.driver).select_package_by_id(package_id=package_id, element_on_modal=True)
 
-        select_address = Select(create_order_locators.select_mail_address)
-        all_shipping_address = [address.text for address in select_address.options]
-        address_outside_of_canada = [address for address in all_shipping_address if "CA" in address]
-        address_to_be_select = random.sample(address_outside_of_canada, k=1)[0]
+            create_order.click(by_locator=create_order_locators.send_to_canada_button)
+            create_order.wait_for_element(lambda: create_order.is_element_visible(
+                by_locator=create_order_locators.email_field), waiting_for="order details page gets loaded")
 
-        select_address.select_by_visible_text(text=address_to_be_select)
-        sleep_execution(time_seconds=5)
-        create_order.click(by_locator=create_order_locators.same_billing_address_checkbox)
-        sleep_execution(time_seconds=3)
-        create_order.click(by_locator=create_order_locators.same_billing_address_checkbox)
+            sleep_execution(time_seconds=5)
+            create_order.click_element_by_javascript(element=create_order.get_element_of_package_receive_radio_button(
+                locator_value=self.create_order_constants.PACKAGE_RECEIVE_BY_MAIL))
 
-        selected_address = select_address.all_selected_options
-        split_address = selected_address[0].split(",")
+            select_address_element = WebDriverWait(self.driver, 10).until(EC.visibility_of_element_located(
+                create_order_locators.select_mail_address))
+            select_address = Select(select_address_element)
+            all_shipping_address = [address.text for address in select_address.options]
+            address_outside_of_canada = [address for address in all_shipping_address if "CA" in address]
+            address_to_be_select = random.sample(address_outside_of_canada, k=1)[0]
 
-        province_dict = {"ON": "Ontario", "PE": "Prince Edward Island", "BC": "British Columbia", "YT": "Yukon"}
-        address_field_locator = {
-            "City": create_order_locators.city_field, "Province": create_order_locators.province_field,
-            "Postal Code": create_order_locators.postal_code_field, "Country": create_order_locators.country_field}
+            select_address.select_by_visible_text(text=address_to_be_select)
+            sleep_execution(time_seconds=3)
+            same_billing_address_checkbox_element = create_order.find_element_by_css_selector(
+                locator_value=create_order_locators.same_billing_address_checkbox)
+            create_order.click_element_by_javascript(element=same_billing_address_checkbox_element)
+            sleep_execution(time_seconds=3)
+            create_order.click_element_by_javascript(element=same_billing_address_checkbox_element)
 
-        for field_name, field_locator in address_field_locator.items():
-            expected_attribute = "title" if field_name in ["Province", "Country"] else "value"
-            split_postal_code_country = split_address[2].split()
+            selected_address = select_address.all_selected_options[0].text.split(",")
 
-            expected_value_dict = {
-                "City": split_address[0], "Province": split_address[1], "Postal Code": split_postal_code_country[0],
-                "Country": province_dict[split_postal_code_country[1]]}
+            province_dict = {"ON": "Ontario", "PE": "Prince Edward Island", "BC": "British Columbia", "YT": "Yukon",
+                             "CA": "Canada"}
+            address_field_locator = {
+                "City": create_order_locators.city_field, "Province": create_order_locators.province_field,
+                "Postal Code": create_order_locators.postal_code_field, "Country": create_order_locators.country_field}
 
-            assert create_order.get_attribute_value(by_locator=field_locator, attribute_name=expected_attribute) == \
-                   expected_value_dict[field_name], "'{}' is not getting same as per the address selected in " \
-                                                    "shipping address.".format(field_name)
+            for field_name, field_locator in address_field_locator.items():
+                expected_attribute = "title" if field_name in ["Province", "Country"] else "value"
+                postal_code_and_country = selected_address[2].split()
+
+                expected_value_dict = {
+                    "City": selected_address[0], "Province": province_dict[selected_address[1].strip()],
+                    "Postal Code": postal_code_and_country[0], "Country": province_dict[postal_code_and_country[1]]}
+
+                assert create_order.get_attribute_value(
+                    by_locator=field_locator, attribute_name=expected_attribute) == expected_value_dict[field_name], \
+                    "'{}' is not getting same as per the address selected in shipping address.".format(field_name)
+        finally:
+            packages_page.click(by_locator=create_order_locators.create_order_modal_close_icon)

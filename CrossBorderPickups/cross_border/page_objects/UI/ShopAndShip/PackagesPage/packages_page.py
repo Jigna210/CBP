@@ -4,6 +4,7 @@ from datetime import date
 
 from selenium.webdriver.remote.webelement import WebElement
 from selenium.webdriver.support import expected_conditions as EC
+from selenium.webdriver.support.select import Select
 from selenium.webdriver.support.wait import WebDriverWait
 
 from CrossBorderPickups.cross_border.lib.constants.constant import PageConstants, BaseConstants
@@ -259,7 +260,11 @@ class CreateOrderDropDown(GenericDropDown, PackagesList):
             if key_data == "shipping_name":
                 self.enter_text(by_locator=shipping_address_dict[key_data], value=kwargs.get(key_data))
             else:
-                self.select_value_from_drop_down_results(option_value=kwargs.get(key_data))
+                select_address_element = WebDriverWait(self.driver, 10).until(EC.visibility_of_element_located(
+                    shipping_address_dict[key_data]))
+
+                select_address = Select(select_address_element)
+                select_address.select_by_visible_text(text=kwargs.get(key_data))
 
     def fill_billing_address_details(self, **kwargs) -> None:
         """

@@ -26,7 +26,7 @@ def create_new_package(request: 'SubRequest', login):
 
     full_name = request.param.get("full_name") if hasattr(request, 'param') else "QA Automation"
     package_status = request.param.get("package_status") if hasattr(request, 'param') else \
-        new_package_constant.PackageStatus.PENDING_ORDER_CREATION
+        new_package_constant.PackageStatus.PENDING_PAYMENT
     package_carrier = request.param.get("incoming_carrier") if hasattr(request, 'param') else carrier
     tracking_number = request.param.get("tracking_number") if hasattr(request, 'param') else tracking_number
     package_vendor = request.param.get("package_vendor") if hasattr(request, 'param') else vendor

@@ -19,6 +19,7 @@ class Locators:
     select_drop_down_arrow = (By.CSS_SELECTOR, 'span[role="presentation"]')
     country_origin_list_panel = (By.CSS_SELECTOR, 'div[class*="results"]')
     drop_down_results = 'div[class*="results"] div[class*="label-content"]'
+    reports_drop_down_arrow = (By.CSS_SELECTOR, 'mat-icon[class*="indicatorRotate"]')
     auto_suggestion_results = 'span.mat-option-text'
 
     class Notification:
@@ -175,8 +176,7 @@ class Locators:
         data_received_checkbox = (By.CSS_SELECTOR, 'mat-checkbox[formcontrolname="data_received"] input')
         add_content_button = (By.XPATH, './/span[@class="mat-button-wrapper" and contains(text(), "Add Content")]')
         package_separation_checkbox = (By.CSS_SELECTOR, 'mat-checkbox[formcontrolname="package_separation"] input')
-        create_package_button = (By.XPATH, './/span[@class="mat-button-wrapper" and contains('
-                                           'text(), "Create Package")]')
+        create_package_button = (By.XPATH, './/span[@class="mat-button-wrapper" and contains(''text(), "Create Package")]')
         required_field_error_msgs = 'mat-error[class*="mat-error"]'
 
         class AddContent:

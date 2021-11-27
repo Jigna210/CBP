@@ -105,7 +105,7 @@ class TestNewPackagesPage:
         new_package_page.get_element_of_add_cancel_button_of_add_content_modal(
             element_name=add_content_modal_constant.CANCEL_BUTTON).click()
 
-    @pytest.mark.parametrize('add_pkg_content', [False])
+    @pytest.mark.parametrize('add_pkg_content', [True])
     def test_create_new_package_with_valid_details(self, add_pkg_content):
         """
         Test Steps:
@@ -151,10 +151,10 @@ class TestNewPackagesPage:
             new_package_page.fill_content_information(**package_content_dict)
 
         new_package_page.click(by_locator=self.new_package_locator.create_package_button)
-        # success_notification = Notifications(self.driver).get_notification_message()
-        #
-        # assert success_notification == self.success_error_msg.create_package_success_msg, \
-        #     "Success notification message is missing or mismatched after creating new package."
+        success_notification = Notifications(self.driver).get_notification_message()
+
+        assert success_notification == self.success_error_msg.create_package_success_msg, \
+            "Success notification message is missing or mismatched after creating new package."
 
     def test_verify_date_received_should_not_be_future_date(self):
         """
