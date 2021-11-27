@@ -104,9 +104,13 @@ def get_driver_instance():
 
 
 @pytest.fixture()
-def login(init_driver):
+def login(request: 'SubRequest', init_driver):
     """ Automatically logs into product with configured username and password before each test """
     driver = init_driver
+    perform_logout = True
+
+    if request.node.get_closest_marker('disable_logout'):
+        perform_logout = False
 
     try:
         login_page = LoginPage(driver)
@@ -118,7 +122,8 @@ def login(init_driver):
             expected_locator)), waiting_for="dashboard gets displayed after login")
         yield
     finally:
-        HeaderPage(driver).do_logout()
+        if perform_logout:
+            HeaderPage(driver).do_logout()
 
 
 def _test_status(call: 'CallInfo', test_report: 'TestReport') -> BaseConstants.Status:
