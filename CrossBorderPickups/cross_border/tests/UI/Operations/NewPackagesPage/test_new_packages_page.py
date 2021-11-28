@@ -216,8 +216,8 @@ class TestNewPackagesPage:
             "Package type shows incorrect type while entering '{}' weight in 'New Package' page.".format(
                 weight_to_be_enter)
 
-    @pytest.mark.usefixtures("create_new_package")
-    def test_create_new_package_using_fixture(self, create_new_package):
-        """  """
-        created_package_details = create_new_package
-        print(created_package_details)
+    # @pytest.mark.usefixtures("create_new_package")
+    # def test_create_new_package_using_fixture(self, create_new_package):
+    #     """  """
+    #     created_package_details = create_new_package
+    #     print(created_package_details)

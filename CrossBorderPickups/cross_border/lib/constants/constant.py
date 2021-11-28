@@ -7,8 +7,8 @@ class BaseConstants:
     CUSTOMER_USER_NAME = "qa_test12@yopmail.com"
     DEFAULT_PASSWORD = "123456"
     OPERATION_PORTAL_URL = "https://cbp-ops-qa.crossborderpickups.ca/"
-    OPERATION_PORTAL_USERNAME = "operation@cbp.com"
-    OPERATION_PORTAL_PASSWORD = "operation"
+    OPERATION_PORTAL_USERNAME = "jigna@crossborderpickups.ca"
+    OPERATION_PORTAL_PASSWORD = "123456"
     BUSINESS_USERNAME = "jr21029@gmail.com"
     DEFAULT_TIMEOUT = 30
     CHROME_BROWSER = "Chrome"
