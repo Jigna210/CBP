@@ -1,7 +1,9 @@
 import random
 
+from selenium.common.exceptions import NoSuchElementException, TimeoutException
 from selenium.webdriver.remote.webelement import WebElement
 
+from CrossBorderPickups.cross_border.lib.constants.constant import PageConstants
 from CrossBorderPickups.cross_border.lib.helpers.helpers import sleep_execution
 from CrossBorderPickups.cross_border.lib.locators.locators import Locators
 from CrossBorderPickups.cross_border.page_objects.BasePage import BasePage
@@ -17,32 +19,68 @@ class GenericDropDown(BasePage):
         :param str field_name: dropdown field name
         :return: None
         """
-        locator_value = 'mat-select[formcontrolname="{}"] div[class*="mat-select-arrow-wrapper"]'.format(field_name)
+        cbp_locator_value = './/label[contains(text(), "{}")]//following-sibling::select2//span[' \
+                            '@role="presentation"]'.format(field_name)
+        ops_locator_value = './/mat-select[@formcontrolname="{}"]//div[contains(' \
+                            '@class, "mat-select-arrow-wrapper")]'.format(field_name)
 
-        self.find_element_by_css_selector(locator_value=locator_value).click()
+        expected_locator_value = ops_locator_value if "-ops-" in self.get_url() else cbp_locator_value
 
-    def select_value_from_drop_down_results(self, option_value: str):
+        self.find_element_by_xpath(locator_value=expected_locator_value).click()
+
+    def get_element_of_drop_down_results(self, field_name: str) -> list:
+        """
+        Returns dropdown results from given dropdown field name
+
+        :param str field_name: dropdown field name
+        :return: list of web elements of dropdown results
+        :rtype: list
+        """
+        package_page_constant = PageConstants.PackagesPage
+        locator_value = './/label[contains(text(), "{}")]//following-sibling::select2//div[' \
+                        'contains(@class, "results")]//li'.format(field_name)
+
+        if field_name in [package_page_constant.AddContent.COUNTRY_OF_ORIGIN, package_page_constant.CreateOrder.COUNTRY,
+                          package_page_constant.CreateOrder.PROVINCE]:
+            locator_value = locator_value + "//div"
+
+        return self.find_elements_by_xpath(locator_value=locator_value)
+
+    def select_value_from_drop_down_results(self, option_value: str, field_name: str = None):
         """
         Selects country origin of given country name from country origin list
 
         :param str option_value: country origin value to be select
+        :param str field_name: dropdown field name if element is dropdown else None
         :return: None
         """
-        self.click(by_locator=Locators.select_drop_down_arrow)
-        self.wait_for_element(lambda: self.is_element_visible(by_locator=Locators.drop_down_search_field),
-                              waiting_for="country origin list gets open")
+        self.click_on_drop_down_arrow(field_name=field_name)
 
-        self.enter_text(by_locator=Locators.drop_down_search_field, value=option_value)
-        self.wait_for_element(lambda: self.is_element_visible(by_locator=Locators.country_origin_list_panel),
-                              waiting_for="country origin results get displayed")
+        try:
+            if self.is_element_visible(by_locator=Locators.drop_down_search_field):
+                self.wait_for_element(lambda: self.is_element_visible(by_locator=Locators.drop_down_search_field),
+                                      waiting_for="country origin list gets open")
 
-        if self.is_element_visible(by_locator=Locators.country_origin_list_panel):
-            search_results = self.find_elements_by_css_selector(locator_value=Locators.drop_down_results)
+                self.enter_text(by_locator=Locators.drop_down_search_field, value=option_value)
+        except (NoSuchElementException, TimeoutException):
+            print("No search field displayed")
+
+        sleep_execution(3)
+
+        try:
+            search_results = self.get_element_of_drop_down_results(field_name=field_name)
+            package_page_constant = PageConstants.PackagesPage
 
             for result in search_results:
-                if result.get_attribute("innerHTML").casefold() == option_value.casefold():
+                expected_result_value = result.get_attribute("innerHTML") if field_name in [
+                    package_page_constant.AddContent.COUNTRY_OF_ORIGIN, package_page_constant.CreateOrder.COUNTRY,
+                    package_page_constant.CreateOrder.PROVINCE] else result.text
+
+                if expected_result_value.strip().casefold() == option_value.casefold():
                     self.click_element_by_javascript(element=result)
                     break
+        except NoSuchElementException:
+            print("No result option fount for '{}' value.".format(option_value))
 
     def get_all_values_from_drop_down_options(self) -> list:
         """

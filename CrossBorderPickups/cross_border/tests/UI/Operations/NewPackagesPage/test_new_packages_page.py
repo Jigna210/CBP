@@ -105,7 +105,7 @@ class TestNewPackagesPage:
         new_package_page.get_element_of_add_cancel_button_of_add_content_modal(
             element_name=add_content_modal_constant.CANCEL_BUTTON).click()
 
-    @pytest.mark.parametrize('add_pkg_content', [True])
+    @pytest.mark.parametrize('add_pkg_content', [False])
     def test_create_new_package_with_valid_details(self, add_pkg_content):
         """
         Test Steps:

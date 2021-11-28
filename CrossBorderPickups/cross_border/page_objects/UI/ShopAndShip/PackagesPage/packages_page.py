@@ -2,6 +2,7 @@ import random
 import string
 from datetime import date
 
+from selenium.common.exceptions import NoSuchElementException, TimeoutException
 from selenium.webdriver.remote.webelement import WebElement
 from selenium.webdriver.support import expected_conditions as EC
 from selenium.webdriver.support.select import Select
@@ -152,7 +153,7 @@ class PackagesList(GenericBaseTable):
         """
         element = self.find_element_by_xpath(
             locator_value='.//input[@id="{}"]//ancestor::tr//following::tr[2]//td[contains(text(), "{}")]//'
-                          'following::td[7]//i[contains(@class, "{}")]'.format(package_id, category, locator_value))
+                          'following::td[8]//i[contains(@class, "{}")]'.format(package_id, category, locator_value))
 
         return element
 
@@ -166,7 +167,7 @@ class PackagesList(GenericBaseTable):
         """
         rows = self.get_content_table_rows(package_id=package_id)
 
-        return [row.text.split()[0] for row in rows]
+        return [row.find_elements_by_tag_name("td")[0].text.strip() for row in rows]
 
     def get_package_content_table_details_by_category(self, package_id: str, category: str, fields: list) -> dict:
         """
@@ -224,8 +225,8 @@ class CreateOrderDropDown(GenericDropDown, PackagesList):
 
         payment_details_dict = {
             "email_id": payment_locator.email_field, "cvc_number": payment_locator.cvc_field,
-            "card_name": payment_locator.name_on_card_field, "exp_year": payment_locator.exp_year_field,
-            "card_number": payment_locator.card_number_field, "exp_month": payment_locator.exp_month_field}
+            "card_name": payment_locator.name_on_card_field, "exp_date": payment_locator.exp_date_field,
+            "card_number": payment_locator.card_number_field}
 
         for key_data in list(payment_details_dict.keys()):
             self.enter_text(by_locator=payment_details_dict[key_data], value=kwargs.get(key_data))
@@ -253,18 +254,20 @@ class CreateOrderDropDown(GenericDropDown, PackagesList):
         :param kwargs: shipping address info that to be fill
         :return: None
         """
+        key_data = list(kwargs.keys())
         shipping_address_dict = {"shipping_name": self.create_order_locators.shipping_address_name,
                                  "shipping_address": self.create_order_locators.select_mail_address}
 
-        for key_data in list(shipping_address_dict.keys()):
-            if key_data == "shipping_name":
-                self.enter_text(by_locator=shipping_address_dict[key_data], value=kwargs.get(key_data))
-            else:
-                select_address_element = WebDriverWait(self.driver, 10).until(EC.visibility_of_element_located(
-                    shipping_address_dict[key_data]))
+        if "shipping_name" in key_data:
+            if self.find_element_by_css_selector(shipping_address_dict[key_data][1]).get_attribute(
+                    "value") == "":
+                self.enter_text(by_locator=shipping_address_dict[key_data], value=kwargs.get("shipping_name"))
+        elif "shipping_address" in key_data:
+            select_address_element = WebDriverWait(self.driver, 10).until(EC.visibility_of_element_located(
+                shipping_address_dict[key_data]))
 
-                select_address = Select(select_address_element)
-                select_address.select_by_visible_text(text=kwargs.get(key_data))
+            select_address = Select(select_address_element)
+            select_address.select_by_visible_text(text=kwargs.get("shipping_address"))
 
     def fill_billing_address_details(self, **kwargs) -> None:
         """
@@ -275,13 +278,18 @@ class CreateOrderDropDown(GenericDropDown, PackagesList):
         """
         billing_locator = self.create_order_locators
 
-        billing_address_dict = {"address": billing_locator.address_field, "state": billing_locator.province_field,
-                                "city": billing_locator.city_field, "postal_code": billing_locator.postal_code_field}
+        billing_address_dict = {"address": billing_locator.address_field, "city": billing_locator.city_field,
+                                "postal_code": billing_locator.postal_code_field}
 
-        for key_data in list(billing_address_dict.keys()):
-            self.enter_text(by_locator=billing_address_dict[key_data], value=kwargs.get(key_data))
+        for key_data in list(kwargs.keys()):
+            if key_data in ["address", "city", "postal_code"]:
+                self.enter_text(by_locator=billing_address_dict[key_data], value=kwargs.get(key_data))
+            elif key_data in ["country", "province"]:
+                expected_field_name = self.create_order_constants.COUNTRY if key_data == "country" else \
+                    self.create_order_constants.PROVINCE
 
-        self.select_value_from_drop_down_results(option_value=kwargs.get("country"))
+                self.select_value_from_drop_down_results(option_value=kwargs.get(key_data),
+                                                         field_name=expected_field_name)
 
     def fill_order_details(self, **kwargs) -> None:
         """
@@ -308,45 +316,60 @@ class CreateOrderDropDown(GenericDropDown, PackagesList):
         :return: required billing info
         :rtype: dict
         """
+        address_dict = {}
         user_name = "Jiang Chad"
-        current_year = date.today().year
         user_email = "{}{}{}@gmail.com".format(''.join(
             random.choice(string.ascii_letters) for _ in range(8)), random.choice("!#$%&*+-/?^_"), ''.join(
             random.choice(string.digits) for _ in range(5)))
+        current_year = date.today().year
+
+        if not is_same_address:
+            address = "430 Mclevin Ave. Apt.#1809"
+            # postal_code = random.sample(PageConstants.PackagesPage.POSTAL_CODES, k=1)[0]
+            # city = random.sample(PageConstants.PackagesPage.CANADIAN_CITIES, k=1)[0]
+            # province = random.sample(PageConstants.PackagesPage.CANADIAN_PROVINCES, k=1)[0]
+            # country_or_region = self.get_random_country_region_name()
+
+            if shipping_method == self.create_order_constants.PACKAGE_RECEIVE_BY_MAIL:
+                if not is_same_address:
+                    address_dict = {'name': user_name, 'address': address, 'city': "Scarborough",
+                                    'postal_code': "M1B5P1", 'province': "Ontario", 'country': "Canada"}
+            else:
+                address_dict = {'email_id': user_email, 'address': address, 'city': "Scarborough",
+                                'postal_code': "M1B5P1", 'country': "Canada", 'province': "Ontario"}
 
         card_number = random.sample(self.create_order_constants.PAYMENT_CARD_NUMBERS, k=1)[0]
         exp_month = random.sample([m for m in range(1, 13)], k=1)[0]
         exp_year = random.sample([y for y in range(current_year + 1, current_year + 6)], k=1)[0]
+        exp_date = "0{}/{}".format(exp_month, str(exp_year)[2:])
         cvc_number = random.randint(100, 999)
 
-        postal_code = random.sample(PageConstants.PackagesPage.POSTAL_CODES, k=1)[0]
-        city = random.sample(PageConstants.PackagesPage.CANADIAN_CITIES, k=1)[0]
-        province = random.sample(PageConstants.PackagesPage.CANADIAN_PROVINCES, k=1)[0]
-        country_or_region = self.get_random_country_region_name()
-
-        if shipping_method == self.create_order_constants.PACKAGE_RECEIVE_BY_MAIL and not is_same_address:
-            self.click(by_locator=self.create_order_locators.same_billing_address_checkbox)
-
-            address_dict = {'shipping_name': user_name, 'address_line_1': '', 'address_line_2': '',
-                            'shipping_city': city, 'shipping_postal_code': postal_code, 'shipping_province': province,
-                            'shipping_country': country_or_region}
-        else:
-            address_dict = {'email_id': user_email, 'address': '', 'city': city, 'state': province,
-                            'postal_code': postal_code, 'country': country_or_region}
-
         order_details_dict = {'pkg_receive_method': shipping_method, 'email_id': user_email,
-                              'card_name': user_name, 'card_number': card_number, 'exp_month': exp_month,
-                              'exp_year': exp_year, 'cvc_number': cvc_number}
+                              'card_name': user_name, 'card_number': card_number, 'exp_date': exp_date,
+                              'cvc_number': cvc_number}
 
         order_details_dict.update(address_dict)
 
         return order_details_dict
 
 
-class AddContentDropDown(GenericDropDown, PackagesList):
+class AddContentModal(GenericDropDown, PackagesList):
     """ Page Object class for Add Content Modal """
 
-    add_content_constant = Locators.PackagesPage.AddContent
+    add_content_locator = Locators.PackagesPage.AddContent
+    add_content_constant = PageConstants.PackagesPage.AddContent
+
+    def get_element_of_add_content_modal_drop_downs(self, field_label: str) -> WebElement:
+        """
+        Returns Web Element of dropdowns under add content modal by using given field label
+
+        :param field_label: dropdown label value
+        :return: WebElement
+        """
+        expected_locator_value = './/label[contains(text(), "{}")]//following-sibling::select2//div[' \
+                                 '@role="combobox"]'.format(field_label)
+
+        return self.find_element_by_xpath(locator_value=expected_locator_value)
 
     def select_duty_category_from_drop_down_item(self, category_value: str) -> None:
         """
@@ -355,14 +378,14 @@ class AddContentDropDown(GenericDropDown, PackagesList):
         :param str category_value: category value to be enter
         :return: None
         """
-        self.enter_text(by_locator=self.add_content_constant.duty_category_field, value=category_value)
+        self.enter_text(by_locator=self.add_content_locator.duty_category_field, value=category_value)
         self.wait_for_element(lambda: self.is_element_visible(
-            by_locator=self.add_content_constant.duty_category_list_panel),
+            by_locator=self.add_content_locator.duty_category_list_panel),
                               waiting_for="duty category results get displayed")
 
-        if self.is_element_visible(by_locator=self.add_content_constant.duty_category_list_panel):
+        if self.is_element_visible(by_locator=self.add_content_locator.duty_category_list_panel):
             category_items = self.find_elements_by_css_selector(
-                locator_value=self.add_content_constant.duty_category_items)
+                locator_value=self.add_content_locator.duty_category_items)
 
             for category in category_items:
                 if category.text == category_value:
@@ -377,20 +400,29 @@ class AddContentDropDown(GenericDropDown, PackagesList):
         :param kwargs: package content details that to be fill
         :return: None
         """
-        if not edit_content:
-            self.select_duty_category_from_drop_down_item(category_value=kwargs.get("duty_category"))
+        drop_down_field_name_dict = {"duty_category": self.add_content_constant.DUTY_CATEGORY,
+                                     "country_origin": self.add_content_constant.COUNTRY_OF_ORIGIN}
 
-        self.select_value_from_drop_down_results(option_value=kwargs.get("country_origin"))
+        for key, value in kwargs.items():
+            if key in ["duty_category", "country_origin"]:
+                self.select_value_from_drop_down_results(field_name=drop_down_field_name_dict.get(key),
+                                                         option_value=value)
+            else:
+                try:
+                    if key == "content_description" and self.is_element_visible(
+                            by_locator=self.add_content_locator.description_area):
+                        self.enter_text(by_locator=self.add_content_locator.description_area, value=value)
+                    else:
+                        add_content_dict = {'quantity': self.add_content_locator.quantity_field,
+                                            'content_value': self.add_content_locator.value_usd_field, }
 
-        add_content_dict = {'quantity': self.add_content_constant.quantity_field,
-                            'content_value': self.add_content_constant.value_usd_field,
-                            'content_description': self.add_content_constant.description_area}
+                        self.enter_text(by_locator=add_content_dict[key], value=value)
+                except (NoSuchElementException, TimeoutException):
+                    print("No description area available.")
 
-        for key_data in list(add_content_dict.keys()):
-            self.enter_text(by_locator=add_content_dict[key_data], value=kwargs.get(key_data))
+        expected_locator = self.add_content_locator.update_button if edit_content else \
+            self.add_content_locator.add_button
 
-        expected_locator = self.add_content_constant.update_button if edit_content else \
-            self.add_content_constant.add_button
         self.click(by_locator=expected_locator)
 
 

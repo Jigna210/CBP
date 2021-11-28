@@ -20,7 +20,7 @@ class BaseConstants:
     DISCARD_CHARGE_PER_PACKAGE = 2
     ERROR_COLOR_CODE = "#F44336"
     SCREENSHOT_EXTENSION = "png"
-    
+
     class Status(Enum):
         """ Test statuses Value represents abbreviated prefix """
         Skipped = 'S'
@@ -32,8 +32,7 @@ class BaseConstants:
 
     class Urls:
         """ Constants related to application page URL's """
-        # GRID_HUB_URL = "http://ec2-3-16-166-56.us-east-2.compute.amazonaws.com:4444/wd/hub"
-        GRID_HUB_URL = "https://localhost:4444/wd/hub/"
+        GRID_HUB_URL = "http://ec2-3-16-166-56.us-east-2.compute.amazonaws.com:4444/wd/hub"
         LOGIN_PAGE_URL = "account/auth/login"
         PACKAGES_PAGE_URL = "packages"
         DASHBOARD_PAGE_URL = "customerDashboard"
@@ -67,8 +66,8 @@ class PageConstants:
         CANADIAN_CITIES = ["Airdrie", "Beaumont", "Brooks", "Calgary", "Camrose", "Chestermere", "Cold Lake",
                            "Edmonton", "Fort Saskatchewan", "Grande Prairie", "Lacombe", "Leduc", "Lethbridge",
                            "Lloydminster", "Medicine Hat", "Red Deer", "Spruce Grove", "St. Albert", "Wetaskiwin"]
-        POSTAL_CODES = []
-        
+        POSTAL_CODES = ["M1B5P1", "C1B1Y5", "V7J3M6"]
+
         class PackageStatus:
             """ Constants related to Packages Status """
             AVAILABLE_FOR_PICKUP = "Available for Pickup"
@@ -85,6 +84,8 @@ class PageConstants:
             CONTENT_TOTAL_VALUE_CAD = "Total Value(CAD)"
             CONTENT_EST_DUTIES = "Est. Duties"
             CONTENT_EST_TAX = "Est. Tax"
+            DUTY_CATEGORY = "Duty Category"
+            COUNTRY_OF_ORIGIN = "Country of Origin"
 
         class CreateOrder:
             """ Constants related to Create Order modal """
@@ -95,6 +96,8 @@ class PageConstants:
             PACKAGE_PICKUP_LOCATION_MARKHAM = "Markham"
             PAYMENT_CARD_NUMBERS = ["3782822463100050", "5555555555554444", "4242424242424242"]
             INVALID_ADDRESS_ERROR = "Service available only in Canada"
+            COUNTRY = "Country"
+            PROVINCE = "Province"
 
         class DiscardPackages:
             """ Constants related to Discard packages modal """
@@ -200,8 +203,6 @@ class PageConstants:
             PACKAGES = "Packages"
             ORDERS = "Orders"
             NEW_PACKAGE = "New Package"
-            # CUSTOMS_FORMS_B2C = "Customs Forms - B2C"
-            # CUSTOMS_FORMS_B2B = "Customs Forms - B2B"
             OPS_SHOP_AND_SHIP_OPTIONS = [NEW_PACKAGE, PACKAGES, ORDERS]
 
         class Ecommerce:

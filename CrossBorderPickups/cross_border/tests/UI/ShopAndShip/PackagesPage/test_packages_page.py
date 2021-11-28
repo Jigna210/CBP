@@ -1,8 +1,8 @@
 import random
+from random import randint
 
 import pytest
 from selenium.webdriver.support import expected_conditions as EC
-from selenium.webdriver.support.expected_conditions import invisibility_of_element_located
 from selenium.webdriver.support.select import Select
 from selenium.webdriver.support.wait import WebDriverWait
 
@@ -12,7 +12,7 @@ from CrossBorderPickups.cross_border.lib.locators.locators import Locators
 from CrossBorderPickups.cross_border.lib.messages.message import NotificationMessages
 from CrossBorderPickups.cross_border.lib.utility.notification import Notifications
 from CrossBorderPickups.cross_border.page_objects.UI.ShopAndShip.PackagesPage.packages_page import PackagesPage, \
-    PackagesList, CreateOrderDropDown, AddContentDropDown, DiscardPackagesDropDown
+    PackagesList, CreateOrderDropDown, AddContentModal, DiscardPackagesDropDown
 
 
 @pytest.mark.usefixtures("login")
@@ -31,30 +31,33 @@ class TestPackagesPage:
     create_order_constants = package_constant.CreateOrder
     status_constant = package_constant.PackageStatus
 
-    def select_packages_from_packages_list_table(self, select_action: str = "single", return_ids: bool = False) -> list:
+    def select_packages_from_packages_list_table(self, select_action: str = "single", return_ids: bool = False,
+                                                 package_status: str = status_constant.PENDING_PAYMENT) -> list:
         """
         Helper function to select packages from packages list table
 
         :param str select_action: action value like single/multiple
         :param bool return_ids: True if selected package ids needed else False
+        :param str package_status: status of package that id needs to be select
         :return: selected package's id
         :rtype: list
         """
+        expected_ids = []
         packages_page = PackagesPage(self.driver)
         packages_page.wait_for_element(lambda: packages_page.is_element_visible(
             by_locator=Locators.PackagesPage.checkout_button), waiting_for="packages page gets loaded")
 
         packages_list = PackagesList(self.driver)
-        pending_order_creation_ids = packages_list.get_package_id_from_other_field_value(
-            package_header=self.package_constant.PACKAGE_STATUS,
-            values=[self.status_constant.PENDING_PAYMENT])
+        package_ids_of_given_status = packages_list.get_package_id_from_other_field_value(
+            package_header=self.package_constant.PACKAGE_STATUS, values=[package_status])
 
-        number_of_package = 1 if (select_action == "single" or len(pending_order_creation_ids) == 1) else \
-            random.randint(2, len(pending_order_creation_ids))
-        expected_ids = random.sample(pending_order_creation_ids, k=number_of_package)
+        if len(package_ids_of_given_status) > 0:
+            number_of_package = 1 if (select_action == "single" or len(package_ids_of_given_status) == 1) else \
+                random.randint(2, len(package_ids_of_given_status))
+            expected_ids = random.sample(package_ids_of_given_status, k=number_of_package)
 
-        for p_id in expected_ids:
-            packages_list.select_package_by_id(package_id=p_id)
+            for p_id in expected_ids:
+                packages_list.select_package_by_id(package_id=p_id)
 
         return expected_ids if return_ids else None
 
@@ -189,6 +192,7 @@ class TestPackagesPage:
         create_order.click(by_locator=create_order_locators.send_to_canada_button)
         create_order.wait_for_element(lambda: create_order.is_element_visible(
             by_locator=create_order_locators.email_field), waiting_for="order details page gets loaded")
+        create_order.click(by_locator=create_order_locators.create_order_modal_close_icon)
 
     def test_user_can_view_content_declaration_block(self):
         """
@@ -210,13 +214,7 @@ class TestPackagesPage:
 
         selected_id = all_packages_id[0]
         package_list.select_package_by_id(package_id=selected_id)
-
-        for row in package_list.table_rows:
-            table_data = row.find_elements_by_tag_name("td")
-
-            if table_data[1].text == selected_id:
-                row.click()
-                break
+        package_list.click_on_row(row_to_be_select=selected_id)
 
         package_content_title_element = package_list.get_element_of_content_block_title(package_id=selected_id)
         package_content_table_element = package_list.get_element_of_package_content_table(package_id=selected_id)
@@ -250,19 +248,14 @@ class TestPackagesPage:
                 status_constant.PENDING_PAYMENT, status_constant.AVAILABLE_FOR_PICKUP,
                 status_constant.READY_FOR_TRANSPORT])
 
-        selected_id = all_packages_id[0]
+        selected_id = random.sample(all_packages_id, k=1)[0]
         package_list.select_package_by_id(package_id=selected_id)
-
-        for row in package_list.table_rows:
-            table_data = row.find_elements_by_tag_name("td")
-
-            if table_data[1].text == selected_id:
-                row.click()
-                break
+        package_list.click_on_row(row_to_be_select=selected_id)
 
         package_list.click(by_locator=Locators.PackagesPage.add_content_button)
+        sleep_execution(2)
 
-        add_content = AddContentDropDown(self.driver)
+        add_content = AddContentModal(self.driver)
         add_content_locators = Locators.PackagesPage.AddContent
         add_content.wait_for_element(lambda: add_content.is_element_visible(
             by_locator=add_content_locators.add_button), waiting_for="create order modal gets loaded")
@@ -271,24 +264,33 @@ class TestPackagesPage:
             "'Add content' modal is not getting displayed after clicking on 'Add content' button from " \
             "selected package."
 
-        for locator in [Locators.modal, add_content_locators.duty_category_field, add_content_locators.quantity_field,
-                        add_content_locators.value_usd_field, add_content_locators.description_area]:
-            add_content.is_element_visible(by_locator=locator), "'Add content' modal is not getting displayed after " \
-                                                                "clicking on 'Add content' button from selected package"
+        add_content_constant = PageConstants.PackagesPage.AddContent
+        add_content.click_on_drop_down_arrow(field_name=add_content_constant.DUTY_CATEGORY)
 
-        assert invisibility_of_element_located(locator=add_content_locators.country_origin), \
-            "'Country of Origin' dropdown is getting displayed even though 'Duty Category' field is empty."
+        for locator in [Locators.modal, add_content_constant.DUTY_CATEGORY, add_content_constant.COUNTRY_OF_ORIGIN,
+                        add_content_locators.quantity_field, add_content_locators.value_usd_field]:
+            if locator in [add_content_constant.DUTY_CATEGORY, add_content_constant.COUNTRY_OF_ORIGIN]:
+                locator = add_content.get_element_of_add_content_modal_drop_downs(field_label=locator)
+
+            assert add_content.is_element_visible(by_locator=locator), \
+                "'Add content' modal is not getting displayed properly after clicking on 'Add content' button."
 
         assert not add_content.is_element_enabled(by_locator=add_content_locators.add_button), \
             "'Add' button in 'Add content' modal button is showing enabled even if no package details entered there."
 
-        package_content_details = {"duty_category": "Medicine - sedatives", "country_origin": "India", "quantity": 1,
-                                   "content_value": 10, "content_description": "Herbal medicines"}
+        package_content_details = {"duty_category": "Acne patches", "country_origin": "India",
+                                   "quantity": randint(1, 5), "content_value": randint(2, 10)}
         add_content.fill_add_content_form(**package_content_details)
-        success_notification = Notifications(self.driver).get_notification_message()
+
+        notification = Notifications(self.driver)
+        success_notification = notification.get_notification_message()
 
         assert success_notification == NotificationMessages.PackagesPage.add_content_success_msg, \
             "Success notification message is missing or mismatched."
+
+        notification.clear_notification()
+        add_content.wait_for_element(lambda: add_content.is_element_visible(
+            by_locator=Locators.HeaderPage.user_avatar), waiting_for="notification message to be disappear")
 
     def test_user_can_edit_added_content_declaration_block_under_package(self):
         """
@@ -302,9 +304,12 @@ class TestPackagesPage:
         package_to_be_select = self.select_packages_from_packages_list_table(return_ids=True)[0]
 
         package_list = PackagesList(self.driver)
-        sleep_execution(time_seconds=3)
+        sleep_execution(time_seconds=2)
+
+        package_list.click_on_row(row_to_be_select=package_to_be_select)
+        sleep_execution(time_seconds=2)
         added_content_categories = package_list.get_categories_from_package_content_table(
-            package_id=package_to_be_select)
+            package_id=package_to_be_select)[:-1]
 
         category_to_be_edited = random.sample(added_content_categories, k=1)[0]
         package_list.get_element_of_content_edit_delete_icon(
@@ -314,12 +319,18 @@ class TestPackagesPage:
         package_content_details = {"country_origin": "Canada", "quantity": 2, "content_value": 15,
                                    "content_description": "Herbal and Ayurvedic medicines"}
 
-        add_content = AddContentDropDown(self.driver)
+        add_content = AddContentModal(self.driver)
         add_content.fill_add_content_form(edit_content=True, **package_content_details)
-        success_notification = Notifications(self.driver).get_notification_message()
+
+        notification = Notifications(self.driver)
+        success_notification = notification.get_notification_message()
 
         assert success_notification == NotificationMessages.PackagesPage.update_content_success_msg, \
             "Success notification message is missing or mismatched after editing package content."
+
+        notification.clear_notification()
+        add_content.wait_for_element(lambda: add_content.is_element_visible(
+            by_locator=Locators.HeaderPage.user_avatar), waiting_for="notification message to be disappear")
 
     def test_create_order_modal_shows_only_pending_order_creation_packages_id(self):
         """
@@ -460,35 +471,59 @@ class TestPackagesPage:
         """
         selected_ids = self.select_packages_from_packages_list_table(select_action=select_action, return_ids=True)
 
-        packages_page = PackagesPage(self.driver)
-        packages_page.click(by_locator=Locators.PackagesPage.checkout_button)
+        if len(selected_ids) != 0:
+            packages_page = PackagesPage(self.driver)
+            packages_page.click(by_locator=Locators.PackagesPage.checkout_button)
 
-        create_order = CreateOrderDropDown(self.driver)
-        create_order_locators = Locators.PackagesPage.CreateOrder
-        create_order.wait_for_element(lambda: create_order.is_element_visible(
-            by_locator=create_order_locators.send_to_canada_button), waiting_for="create order modal gets loaded")
+            create_order = CreateOrderDropDown(self.driver)
+            create_order_locators = Locators.PackagesPage.CreateOrder
+            create_order.wait_for_element(lambda: create_order.is_element_visible(
+                by_locator=create_order_locators.send_to_canada_button), waiting_for="create order modal gets loaded")
 
-        for package_id in selected_ids:
-            PackagesList(self.driver).select_package_by_id(package_id=package_id, element_on_modal=True)
+            for package_id in selected_ids:
+                PackagesList(self.driver).select_package_by_id(package_id=package_id, element_on_modal=True)
 
-        create_order.click(by_locator=create_order_locators.send_to_canada_button)
-        create_order.wait_for_element(lambda: create_order.is_element_visible(
-            by_locator=create_order_locators.email_field), waiting_for="order details page gets loaded")
+            create_order.click(by_locator=create_order_locators.send_to_canada_button)
+            create_order.wait_for_element(lambda: create_order.is_element_visible(
+                by_locator=create_order_locators.email_field), waiting_for="order details page gets loaded")
 
-        create_order.click_element_by_javascript(element=create_order.get_element_of_package_receive_radio_button(
-            locator_value=shipping_method))
+            create_order.click_element_by_javascript(element=create_order.get_element_of_package_receive_radio_button(
+                locator_value=shipping_method))
+            sleep_execution(2)
 
-        is_same_address = create_order.is_element_selected(element=create_order_locators.same_billing_address_checkbox)
-        package_shipping_info = create_order.create_billing_and_payment_info_dict(
-            shipping_method=shipping_method, is_same_address=is_same_address)
+            select_address_element = WebDriverWait(self.driver, 10).until(EC.visibility_of_element_located(
+                create_order_locators.select_mail_address))
+            select_address = Select(select_address_element)
 
-        create_order.fill_order_details(**package_shipping_info)
-        create_order.click(by_locator=create_order_locators.pay_ca_button)
-        success_notification = Notifications(self.driver).get_notification_message()
+            all_shipping_address = [address.text for address in select_address.options]
+            address_from_canada_only = [address for address in all_shipping_address if "US" not in address]
+            address_to_be_select = random.sample(address_from_canada_only[1:], k=1)[0]
+            select_address.select_by_visible_text(text=address_to_be_select)
 
-        assert success_notification == NotificationMessages.PackagesPage.create_order_success_msg, \
-            "Success notification message is missing or mismatched after creating order with '{}' package " \
-            "using '{}' method.".format(select_action, shipping_method)
+            same_billing_address_checkbox_element = create_order.find_element_by_css_selector(
+                locator_value=create_order_locators.same_billing_address_checkbox)
+            create_order.click_element_by_javascript(element=same_billing_address_checkbox_element)
+
+            # is_same_address = create_order.is_element_selected(element=same_billing_address_checkbox_element)
+            package_shipping_info = create_order.create_billing_and_payment_info_dict(
+                shipping_method=shipping_method, is_same_address=True)
+
+            create_order.fill_order_details(**package_shipping_info)
+            create_order.click(by_locator=create_order_locators.pay_ca_button)
+
+            notification = Notifications(self.driver)
+            success_notification = notification.get_notification_message()
+
+            assert success_notification == NotificationMessages.PackagesPage.create_order_success_msg, \
+                "Success notification message is missing or mismatched after creating order with '{}' package " \
+                "using '{}' method.".format(select_action, shipping_method)
+
+            create_order.click(by_locator=create_order_locators.create_order_modal_close_icon)
+            notification.clear_notification()
+            packages_page.wait_for_element(lambda: packages_page.is_element_visible(
+                by_locator=Locators.HeaderPage.user_avatar), waiting_for="notification message to be disappear")
+        else:
+            pytest.mark.skip("No packages found with pending payment status")
 
     @pytest.mark.parametrize('select_action', ['single', 'multiple'])
     def test_user_can_discard_package_from_packages_list(self, select_action):
@@ -547,45 +582,51 @@ class TestPackagesPage:
         [x] Verify user can proceed to do a payment via various mode
         [x] Verify user can able to view the order confirmation details
         """
-        selected_ids = self.select_packages_from_packages_list_table(select_action=select_action, return_ids=True)
+        selected_ids = self.select_packages_from_packages_list_table(
+            select_action=select_action, return_ids=True, package_status=self.status_constant.INFORMATION_REQUIRED)
 
-        packages_page = PackagesPage(self.driver)
-        packages_page.click(by_locator=Locators.PackagesPage.discard_button)
+        if len(selected_ids) != 0:
+            packages_page = PackagesPage(self.driver)
+            packages_page.click(by_locator=Locators.PackagesPage.discard_button)
 
-        discard_package = DiscardPackagesDropDown(self.driver)
-        discard_package_locators = Locators.PackagesPage.DiscardPackage
-        discard_package.wait_for_element(lambda: discard_package.is_element_visible(
-            by_locator=discard_package_locators.discard_button), waiting_for="discard packages modal gets loaded")
+            discard_package = DiscardPackagesDropDown(self.driver)
+            discard_package_locators = Locators.PackagesPage.DiscardPackage
+            discard_package.wait_for_element(lambda: discard_package.is_element_visible(
+                by_locator=discard_package_locators.discard_button), waiting_for="discard packages modal gets loaded")
 
-        for package_id in selected_ids:
-            PackagesList(self.driver).select_package_by_id(package_id=package_id, element_on_modal=True)
+            for package_id in selected_ids:
+                PackagesList(self.driver).select_package_by_id(package_id=package_id, element_on_modal=True)
 
-        discard_package.click(by_locator=discard_package_locators.discard_button)
-        discard_package_constant = PageConstants.PackagesPage.DiscardPackages
-        create_order_locators = Locators.PackagesPage.CreateOrder
-        discard_package.wait_for_element(lambda: discard_package.is_element_visible(
-            by_locator=create_order_locators.email_field), waiting_for="order details page gets loaded")
+            discard_package.click(by_locator=discard_package_locators.discard_button)
+            discard_package_constant = PageConstants.PackagesPage.DiscardPackages
+            create_order_locators = Locators.PackagesPage.CreateOrder
+            discard_package.wait_for_element(lambda: discard_package.is_element_visible(
+                by_locator=create_order_locators.email_field), waiting_for="order details page gets loaded")
 
-        assert int(discard_package.get_element_of_discard_package_count_and_total_charge_value(
-            element_for=discard_package_constant.NUMBER_OF_DISCARDS).text) == len(selected_ids), \
-            "'Number of Discards' count is getting incorrect after selecting '{}' package.".format(select_action)
+            assert int(discard_package.get_element_of_discard_package_count_and_total_charge_value(
+                element_for=discard_package_constant.NUMBER_OF_DISCARDS).text) == len(selected_ids), \
+                "'Number of Discards' count is getting incorrect after selecting '{}' package.".format(select_action)
 
-        expected_total_charge = discard_package.get_expected_total_charge(discard_package_count=len(selected_ids))
+            expected_total_charge = discard_package.get_expected_total_charge(discard_package_count=len(selected_ids))
 
-        assert int(discard_package.get_element_of_discard_package_count_and_total_charge_value(
-            element_for=discard_package_constant.TOTAL_CHARGE).text) == expected_total_charge, \
-            "'Total Charge' value is getting incorrect after selecting '{}' package.".format(select_action)
+            assert int(discard_package.get_element_of_discard_package_count_and_total_charge_value(
+                element_for=discard_package_constant.TOTAL_CHARGE).text) == expected_total_charge, \
+                "'Total Charge' value is getting incorrect after selecting '{}' package.".format(select_action)
 
-        package_shipping_info = CreateOrderDropDown(self.driver).create_billing_and_payment_info_dict(
-            shipping_method=self.create_order_constants.PACKAGE_RECEIVE_BY_PICKUP)
+            package_shipping_info = CreateOrderDropDown(self.driver).create_billing_and_payment_info_dict(
+                shipping_method=self.create_order_constants.PACKAGE_RECEIVE_BY_PICKUP, is_same_address=False)
 
-        discard_package.fill_discard_details(**package_shipping_info)
-        discard_package.click(by_locator=create_order_locators.pay_ca_button)
-        success_notification = Notifications(self.driver).get_notification_message()
+            discard_package.fill_discard_details(**package_shipping_info)
+            discard_package.click(by_locator=create_order_locators.pay_ca_button)
+            success_notification = Notifications(self.driver).get_notification_message()
 
-        assert success_notification == NotificationMessages.PackagesPage.discard_package_success_msg, \
-            "Success notification message is missing or mismatched after discarding packages with '{}' " \
-            "package.".format(select_action)
+            assert success_notification == NotificationMessages.PackagesPage.discard_package_success_msg, \
+                "Success notification message is missing or mismatched after discarding packages with '{}' " \
+                "package.".format(select_action)
+
+            discard_package.click(by_locator=Locators.PackagesPage.CreateOrder.create_order_modal_close_icon)
+        else:
+            pytest.mark.skip("No packages found with information required status")
 
     def test_verify_error_message_on_selecting_us_address_as_shipping_address(self):
         """
