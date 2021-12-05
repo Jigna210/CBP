@@ -67,6 +67,8 @@ class Locators:
             send_to_canada_button = (By.XPATH, '//button[contains(text(), "Send to Canada")]')
             receive_package_method_message = (By.CSS_SELECTOR, 'div[class="my-1"]')
             shipping_address_name = (By.CSS_SELECTOR, 'div[class*="my-1"] input[formcontrolname="name"]')
+            saved_card_radio_button = 'savedCards'
+            add_new_card_radio_button = 'newCard'
             select_mail_address = (By.CSS_SELECTOR, '#select-mail-address')
             email_field = (By.CSS_SELECTOR, 'input[formcontrolname="email"]')
             same_billing_address_checkbox = '#sameBillingAddress'

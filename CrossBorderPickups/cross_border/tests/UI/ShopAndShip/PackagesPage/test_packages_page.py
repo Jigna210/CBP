@@ -401,8 +401,7 @@ class TestPackagesPage:
 
         package_list.select_package_by_id(package_id=package_id, element_on_modal=True)
         create_order.click(by_locator=create_order_locators.send_to_canada_button)
-        create_order.wait_for_element(lambda: create_order.is_element_visible(
-            by_locator=create_order_locators.email_field), waiting_for="order details page gets loaded")
+        sleep_execution(2)
         create_order_modal_constant = self.create_order_constants
 
         assert all([create_order.is_element_visible(by_locator=create_order_locators.receive_package_method_message),
@@ -443,6 +442,9 @@ class TestPackagesPage:
                 assert create_order.is_element_selected(element=package_pickup_location_element), \
                     "Package pickup location radio button for '{}' location is missing under 'Order Details' " \
                     "panel.".format(pickup_location)
+
+        create_order.click_element_by_javascript(element=create_order.get_element_of_package_receive_radio_button(
+            locator_value=create_order_locators.add_new_card_radio_button))
 
         assert create_order.is_element_visible(by_locator=create_order_locators.email_field), \
             "Email field is missing in 'Order Details' panel."
@@ -511,6 +513,10 @@ class TestPackagesPage:
             address_to_be_select = random.sample(address_from_canada_only[1:], k=1)[0]
             select_address.select_by_visible_text(text=address_to_be_select)
 
+            create_order.click_element_by_javascript(element=create_order.get_element_of_package_receive_radio_button(
+                locator_value=create_order_locators.add_new_card_radio_button))
+            sleep_execution(2)
+
             same_billing_address_checkbox_element = create_order.find_element_by_css_selector(
                 locator_value=create_order_locators.same_billing_address_checkbox)
             create_order.click_element_by_javascript(element=same_billing_address_checkbox_element)
@@ -572,8 +578,7 @@ class TestPackagesPage:
             "'Discard' button is not showing enabled even after selecting the packages."
 
         discard_package.click(by_locator=discard_package_locators.discard_button)
-        discard_package.wait_for_element(lambda: discard_package.is_element_visible(
-            by_locator=Locators.PackagesPage.CreateOrder.email_field), waiting_for="discard details page gets loaded")
+        sleep_execution(2)
 
         discard_package.click(by_locator=Locators.PackagesPage.CreateOrder.create_order_modal_close_icon)
         sleep_execution(2)
@@ -610,10 +615,9 @@ class TestPackagesPage:
                 PackagesList(self.driver).select_package_by_id(package_id=package_id, element_on_modal=True)
 
             discard_package.click(by_locator=discard_package_locators.discard_button)
+            sleep_execution(2)
             discard_package_constant = PageConstants.PackagesPage.DiscardPackages
             create_order_locators = Locators.PackagesPage.CreateOrder
-            discard_package.wait_for_element(lambda: discard_package.is_element_visible(
-                by_locator=create_order_locators.email_field), waiting_for="order details page gets loaded")
 
             assert int(discard_package.get_element_of_discard_package_count_and_total_charge_value(
                 element_for=discard_package_constant.NUMBER_OF_DISCARDS).text) == len(selected_ids), \
@@ -625,7 +629,13 @@ class TestPackagesPage:
                 element_for=discard_package_constant.TOTAL_CHARGE).text) == expected_total_charge, \
                 "'Total Charge' value is getting incorrect after selecting '{}' package.".format(select_action)
 
-            package_shipping_info = CreateOrderDropDown(self.driver).create_billing_and_payment_info_dict(
+            create_order = CreateOrderDropDown(self.driver)
+            discard_package.click_element_by_javascript(
+                element=create_order.get_element_of_package_receive_radio_button(
+                    locator_value=create_order_locators.add_new_card_radio_button))
+            sleep_execution(2)
+
+            package_shipping_info = create_order.create_billing_and_payment_info_dict(
                 shipping_method=self.create_order_constants.PACKAGE_RECEIVE_BY_PICKUP, is_same_address=False)
 
             discard_package.fill_discard_details(**package_shipping_info)
@@ -867,9 +877,6 @@ class TestPackagesPage:
                 PackagesList(self.driver).select_package_by_id(package_id=package_id, element_on_modal=True)
 
             create_order.click(by_locator=create_order_locators.send_to_canada_button)
-            create_order.wait_for_element(lambda: create_order.is_element_visible(
-                by_locator=create_order_locators.email_field), waiting_for="order details page gets loaded")
-
             sleep_execution(time_seconds=5)
             create_order.click_element_by_javascript(element=create_order.get_element_of_package_receive_radio_button(
                 locator_value=self.create_order_constants.PACKAGE_RECEIVE_BY_MAIL))
@@ -883,6 +890,11 @@ class TestPackagesPage:
 
             select_address.select_by_visible_text(text=address_to_be_select)
             sleep_execution(time_seconds=3)
+
+            create_order.click_element_by_javascript(element=create_order.get_element_of_package_receive_radio_button(
+                locator_value=create_order_locators.add_new_card_radio_button))
+            sleep_execution(2)
+
             same_billing_address_checkbox_element = create_order.find_element_by_css_selector(
                 locator_value=create_order_locators.same_billing_address_checkbox)
             create_order.click_element_by_javascript(element=same_billing_address_checkbox_element)
