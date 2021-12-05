@@ -44,8 +44,8 @@ class NewPackagesPage(GenericDropDown, GenericDatePicker):
                     option_value=kwargs.get(key), field_name=field_name)
             elif key in ["tracking_number", "weight", "length", "width", "height"]:
                 self.enter_text(by_locator=element_locator_dict[key], value=kwargs.get(key))
-            else:
-                self.select_date_from_date_picker_calendar(calendar_date=kwargs.get("received_date"))
+            elif key in ["received_date"]:
+                self.select_date_from_date_picker_calendar(calendar_date=kwargs.get(key))
 
     def fill_content_information(self, **kwargs) -> None:
         """

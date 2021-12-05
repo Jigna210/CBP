@@ -45,7 +45,7 @@ class TestNewPackagesPage:
 
         new_package_page = NewPackagesPage(self.driver)
         new_package_page.open(url=BaseConstants.Urls.NEW_PACKAGES_PAGE_URL)
-        new_package_page.click(by_locator=self.new_package_locator.create_package_button)
+        new_package_page.click(by_locator=self.new_package_locator.create_update_package_button)
 
         error_msg_dict = {self.new_package_constant.FULL_NAME: self.success_error_msg.full_name_error_msg,
                           self.new_package_constant.STATUS_FOR_POSTING: self.success_error_msg.pkg_status_error_msg,
@@ -129,7 +129,7 @@ class TestNewPackagesPage:
         vendor = random.sample(self.new_package_constant.PackageVendors.VENDORS, k=1)[0]
         condition = random.sample(self.new_package_constant.PackageCondition.PACKAGE_CONDITIONS, k=1)[0]
 
-        package_details_dict = {"full_name": "Jigna", "status": status_of_posting, "incoming_carrier": carrier,
+        package_details_dict = {"full_name": "QA Automation", "status": status_of_posting, "incoming_carrier": carrier,
                                 "received_date": package_received_date, "tracking_number": tracking_number,
                                 "vendor": vendor, "weight": random.randint(1, 9), "length": random.randint(1, 9),
                                 "width": random.randint(1, 9), "height": random.randint(1, 9), "condition": condition}
@@ -150,8 +150,11 @@ class TestNewPackagesPage:
 
             new_package_page.fill_content_information(**package_content_dict)
 
-        new_package_page.click(by_locator=self.new_package_locator.create_package_button)
-        success_notification = Notifications(self.driver).get_notification_message()
+        sleep_execution(2)
+        new_package_page.click(by_locator=self.new_package_locator.create_update_package_button)
+
+        notification = Notifications(self.driver)
+        success_notification = notification.get_notification_message()
 
         assert success_notification == self.success_error_msg.create_package_success_msg, \
             "Success notification message is missing or mismatched after creating new package."
@@ -216,8 +219,8 @@ class TestNewPackagesPage:
             "Package type shows incorrect type while entering '{}' weight in 'New Package' page.".format(
                 weight_to_be_enter)
 
-    # @pytest.mark.usefixtures("create_new_package")
-    # def test_create_new_package_using_fixture(self, create_new_package):
-    #     """  """
-    #     created_package_details = create_new_package
-    #     print(created_package_details)
+    @pytest.mark.usefixtures("create_new_package")
+    def test_create_new_package_using_fixture(self, create_new_package):
+        """  """
+        created_package_details = create_new_package
+        print(created_package_details)

@@ -1,3 +1,4 @@
+import os
 import random
 from random import randint
 
@@ -6,13 +7,17 @@ from selenium.webdriver.support import expected_conditions as EC
 from selenium.webdriver.support.select import Select
 from selenium.webdriver.support.wait import WebDriverWait
 
-from CrossBorderPickups.cross_border.lib.constants.constant import PageConstants
+from CrossBorderPickups.cross_border.lib.constants.constant import PageConstants, BaseConstants
 from CrossBorderPickups.cross_border.lib.helpers.helpers import sleep_execution
 from CrossBorderPickups.cross_border.lib.locators.locators import Locators
 from CrossBorderPickups.cross_border.lib.messages.message import NotificationMessages
 from CrossBorderPickups.cross_border.lib.utility.notification import Notifications
 from CrossBorderPickups.cross_border.page_objects.UI.ShopAndShip.PackagesPage.packages_page import PackagesPage, \
     PackagesList, CreateOrderDropDown, AddContentModal, DiscardPackagesDropDown
+
+app_url = BaseConstants.DEFAULT_BASE_URL
+app_user_name = BaseConstants.CUSTOMER_USER_NAME
+app_password = BaseConstants.DEFAULT_PASSWORD
 
 
 @pytest.mark.usefixtures("login")
@@ -61,7 +66,8 @@ class TestPackagesPage:
 
         return expected_ids if return_ids else None
 
-    def test_visibility_of_create_order_link_unlink_discard_buttons(self):
+    @pytest.mark.parametrize('create_new_package', [{"pkg_count": 2}], indirect=True)
+    def test_visibility_of_create_order_link_unlink_discard_buttons(self, create_new_package):
         """
         Test Steps:
             1. Go to Packages page
@@ -74,6 +80,7 @@ class TestPackagesPage:
         [x] "Link" button should get enabled only if user select more than one package from list.
         """
         packages_page = PackagesPage(self.driver)
+        packages_page.load_url(url=os.path.join(app_url, BaseConstants.Urls.PACKAGES_PAGE_URL))
         packages_page.wait_for_element(lambda: packages_page.is_element_visible(
             by_locator=Locators.PackagesPage.checkout_button), waiting_for="packages page gets loaded")
 
@@ -156,7 +163,7 @@ class TestPackagesPage:
                 "Failed to select package by using checkbox."
 
     @pytest.mark.parametrize('select_action', ['single', 'multiple'])
-    def test_user_can_create_order_by_selecting_single_or_multiple_packages(self, select_action):
+    def test_user_can_create_order_by_selecting_single_or_multiple_packages(self, create_new_package, select_action):
         """
         Test Steps:
             1. Go to Packages page
@@ -192,7 +199,9 @@ class TestPackagesPage:
         create_order.click(by_locator=create_order_locators.send_to_canada_button)
         create_order.wait_for_element(lambda: create_order.is_element_visible(
             by_locator=create_order_locators.email_field), waiting_for="order details page gets loaded")
+
         create_order.click(by_locator=create_order_locators.create_order_modal_close_icon)
+        sleep_execution(2)
 
     def test_user_can_view_content_declaration_block(self):
         """
@@ -246,7 +255,7 @@ class TestPackagesPage:
         all_packages_id = package_list.get_package_id_from_other_field_value(
             package_header=self.package_constant.PACKAGE_STATUS, values=[
                 status_constant.PENDING_PAYMENT, status_constant.AVAILABLE_FOR_PICKUP,
-                status_constant.READY_FOR_TRANSPORT])
+                status_constant.READY_FOR_TRANSPORT, status_constant.INFORMATION_REQUIRED])
 
         selected_id = random.sample(all_packages_id, k=1)[0]
         package_list.select_package_by_id(package_id=selected_id)
@@ -360,6 +369,7 @@ class TestPackagesPage:
             "'Pending order creation'."
 
         create_order.click(by_locator=packages_page_locators.CreateOrder.create_order_modal_close_icon)
+        sleep_execution(2)
 
     @pytest.mark.parametrize('package_receive_method', [create_order_constants.PACKAGE_RECEIVE_BY_MAIL,
                                                         create_order_constants.PACKAGE_RECEIVE_BY_PICKUP])
@@ -452,6 +462,7 @@ class TestPackagesPage:
             "'Pay CA' button is showing enabled even though no information entered in the form."
 
         create_order.click(by_locator=create_order_locators.create_order_modal_close_icon)
+        sleep_execution(2)
 
     @pytest.mark.parametrize('select_action', ['single', 'multiple'])
     @pytest.mark.parametrize('shipping_method', [create_order_constants.PACKAGE_RECEIVE_BY_MAIL,
@@ -565,6 +576,7 @@ class TestPackagesPage:
             by_locator=Locators.PackagesPage.CreateOrder.email_field), waiting_for="discard details page gets loaded")
 
         discard_package.click(by_locator=Locators.PackagesPage.CreateOrder.create_order_modal_close_icon)
+        sleep_execution(2)
 
     @pytest.mark.parametrize('select_action', ['single', 'multiple'])
     def test_discard_packages_by_filling_discard_and_payment_details_with_single_and_multiple_packages(
@@ -625,6 +637,7 @@ class TestPackagesPage:
                 "package.".format(select_action)
 
             discard_package.click(by_locator=Locators.PackagesPage.CreateOrder.create_order_modal_close_icon)
+            sleep_execution(2)
         else:
             pytest.mark.skip("No packages found with information required status")
 
@@ -683,6 +696,7 @@ class TestPackagesPage:
                 "shipping address."
         finally:
             create_order.click(by_locator=create_order_locators.create_order_modal_close_icon)
+            sleep_execution(2)
 
     @pytest.mark.parametrize("keyword_type", [
         package_constant.PACKAGE_ID, package_constant.PACKAGE_STATUS, package_constant.PACKAGE_RECEIVED,
@@ -896,3 +910,4 @@ class TestPackagesPage:
                     "'{}' is not getting same as per the address selected in shipping address.".format(field_name)
         finally:
             packages_page.click(by_locator=create_order_locators.create_order_modal_close_icon)
+            sleep_execution(2)

@@ -58,7 +58,7 @@ class TestOperationsPage:
                 "'{}' menu is getting missing or mismatched on side navigation panel.".format(side_nav_menu)
 
             for option in side_nav_sub_menu:
-                if option == side_nav_panel_constant.EcommerceShipping.REPORTS:
+                if option == side_nav_panel_constant.ShopAndShip.REPORTS:
                     side_nav_panel.click(by_locator=Locators.reports_drop_down_arrow)
 
                 sub_menu_element = side_nav_panel.get_element_of_side_nav_option(

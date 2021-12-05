@@ -7,8 +7,8 @@ class BaseConstants:
     CUSTOMER_USER_NAME = "qa_test12@yopmail.com"
     DEFAULT_PASSWORD = "123456"
     OPERATION_PORTAL_URL = "https://cbp-ops-qa.crossborderpickups.ca/"
-    OPERATION_PORTAL_USERNAME = "jigna@crossborderpickups.ca"
-    OPERATION_PORTAL_PASSWORD = "123456"
+    OPERATION_PORTAL_USERNAME = "operation@cbp.com"
+    OPERATION_PORTAL_PASSWORD = "operation"
     BUSINESS_USERNAME = "jr21029@gmail.com"
     DEFAULT_TIMEOUT = 30
     CHROME_BROWSER = "Chrome"
@@ -125,7 +125,7 @@ class PageConstants:
             """ Constants related to Package Carrier from New Package page """
             UPS = "UPS"
             USPS = "USPS"
-            FED_EX = "Fed Ex"
+            FED_EX = "FedEx"
             DHL = "DHL"
             AMAZON_LOGISTICS = "AMAZON LOGISTICS"
             FREIGHT = "FREIGHT"
@@ -173,18 +173,15 @@ class PageConstants:
             CANCEL_BUTTON = "Cancel"
             REQUIRED_FIELDS = [CATEGORY_DESCRIPTION, QUANTITY, VALUE]
 
-            ZIPPERS = "Zippers"
-            ZIPPER_PARTS = "Zipper Parts"
-            YOGA_PANTS = "Yoga Pants"
-            YEAST = "Yeast (active and inactive)"
-            YARNS_OF_WOOL = "Yarns of wool"
-            YARNS_OF_COTTON = "Yarns of cotton"
-            YARN_PAPER = "Yarn paper"
-            YARN_OF_WOOD = "Yarn of wood"
-            YARN_OF_SYNTHETIC_FIBRE = "Yarn of synthetic fibre"
-            YARN_OF_POLYSTER = "Yarn of polyster"
-            CONTENT_CATEGORY = [ZIPPERS, ZIPPER_PARTS, YOGA_PANTS, YEAST, YARNS_OF_WOOL, YARNS_OF_COTTON, YARN_PAPER,
-                                YARN_OF_WOOD, YARN_OF_SYNTHETIC_FIBRE, YARN_OF_POLYSTER]
+            PRINTER_FILAMENT = "3D Printer Filament"
+            PRINTERS = "Printers"
+            ACNE_PATCHES = "Acne patches"
+            ACNE_TREATMENTS = "Acne treatments"
+            ACOUSTIC_FOAM = "Acoustic Foam in plates and sheets"
+            ACOUTIC_GUITAR = "Acoutic Guitar"
+            ACRYLIC_DISPLAY = "Acrylic Display"
+            CONTENT_CATEGORY = [PRINTER_FILAMENT, PRINTERS, ACNE_PATCHES, ACNE_TREATMENTS, ACOUSTIC_FOAM,
+                                ACOUTIC_GUITAR, ACRYLIC_DISPLAY]
 
     class SideNavigationPanel:
         """ Constants related to Side navigation panel """
@@ -203,7 +200,18 @@ class PageConstants:
             PACKAGES = "Packages"
             ORDERS = "Orders"
             NEW_PACKAGE = "New Package"
-            OPS_SHOP_AND_SHIP_OPTIONS = [NEW_PACKAGE, PACKAGES, ORDERS]
+            SCANNING_TOOL = "Scanning Tool"
+            CUSTOMS_FORMS = "Customs Forms"
+            REPORTS = "Reports"
+            OUTGOING_PALLET_REPORT = "Outgoing Pallet Report"
+            SCANNING_CHECK_MISSING_REPORT = "Scanning Check - Missing (US) Report"
+            SCANNING_CHECK_EXTRA_REPORT = "Scanning Check - Extra (US) Report"
+            EMPTY_SHELF_REPORT = "Empty Shelf Report"
+            PROCESSOR = "Processor"
+            SHELF_REPORT = "Shelf Report"
+            OPS_SHOP_AND_SHIP_OPTIONS = [NEW_PACKAGE, PACKAGES, ORDERS, CUSTOMS_FORMS, SCANNING_TOOL, REPORTS,
+                                         OUTGOING_PALLET_REPORT, SCANNING_CHECK_MISSING_REPORT,
+                                         SCANNING_CHECK_EXTRA_REPORT, EMPTY_SHELF_REPORT, PROCESSOR, SHELF_REPORT]
 
         class Ecommerce:
             """ Constants related to Ecommerce menu """
@@ -216,17 +224,7 @@ class PageConstants:
             SHIPMENTS = "Shipments"
             BATCHES = "Batches"
             RATES = "Rates"
-            SCANNING_TOOL = "Scanning Tool"
-            REPORTS = "Reports"
-            OUTGOING_PALLET_REPORT = "Outgoing Pallet Report"
-            SCANNING_CHECK_MISSING_REPORT = "Scanning Check - Missing (US) Report"
-            SCANNING_CHECK_EXTRA_REPORT = "Scanning Check - Extra (US) Report"
-            EMPTY_SHELF_REPORT = "Empty Shelf Report"
-            PROCESSOR = "Processor"
-            SHELF_REPORT = "Shelf Report"
-            ECOMMERCE_SHIPPING_OPTIONS = [SHIPMENTS, BATCHES, RATES, SCANNING_TOOL, REPORTS, OUTGOING_PALLET_REPORT,
-                                          SCANNING_CHECK_MISSING_REPORT, SCANNING_CHECK_EXTRA_REPORT,
-                                          EMPTY_SHELF_REPORT, PROCESSOR, SHELF_REPORT]
+            ECOMMERCE_SHIPPING_OPTIONS = [SHIPMENTS, BATCHES, RATES]
 
         class CustomerService:
             """ Constants related to Customer Service menu """

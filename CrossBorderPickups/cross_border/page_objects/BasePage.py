@@ -25,7 +25,7 @@ class BasePage(object):
         self.driver = driver
         self.driver.implicitly_wait(time_to_wait=BaseConstants.DEFAULT_TIMEOUT)
 
-    def open(self, url: str) -> None:
+    def open(self, url: str = None) -> None:
         """
         Opens the page URL by appending given URL with base URL
 
@@ -42,6 +42,15 @@ class BasePage(object):
 
         self.driver.get(page_url)
         self.driver.implicitly_wait(time_to_wait=10)
+
+    def load_url(self, url: str) -> None:
+        """
+        Loads given page URL
+
+        :param str url: page URL to be load
+        :return: None
+        """
+        self.driver.get(url=url)
 
     def find_element(self, by_locator: WebElement) -> WebElement:
         """

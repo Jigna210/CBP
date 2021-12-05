@@ -143,8 +143,7 @@ class Locators:
         data_received_checkbox = (By.CSS_SELECTOR, 'mat-checkbox[formcontrolname="data_received"] input')
         add_content_button = (By.XPATH, './/span[@class="mat-button-wrapper" and contains(text(), "Add Content")]')
         package_separation_checkbox = (By.CSS_SELECTOR, 'mat-checkbox[formcontrolname="package_separation"] input')
-        create_package_button = (By.XPATH, './/span[@class="mat-button-wrapper" and contains('
-                                           'text(), "Create Package")]')
+        create_update_package_button = (By.CSS_SELECTOR, 'button[fxflex="33"]')
         required_field_error_msgs = 'mat-error[class*="mat-error"]'
 
         class AddContent:
@@ -157,7 +156,7 @@ class Locators:
             content_quantity = (By.CSS_SELECTOR, 'mat-dialog-content input[formcontrolname="quantity"]')
             content_value = (By.CSS_SELECTOR, 'mat-dialog-content input[formcontrolname="value_usd"]')
             content_description = (By.CSS_SELECTOR, 'mat-dialog-content textarea[formcontrolname="description"]')
-            add_button = (By.CSS_SELECTOR, './/mat-dialog-actions//span[@class="mat-button-wrapper" and contains('
-                                           'text(), "Add")]')
-            cancel_button = (By.CSS_SELECTOR, './/mat-dialog-actions//span[@class="mat-button-wrapper" and contains('
-                                              'text(), "Cancel")]')
+            add_button = (By.XPATH, './/mat-dialog-actions[@class="mat-dialog-actions"]//button//span[contains('
+                                    'text(), "Add")]')
+            cancel_button = (By.XPATH, './/mat-dialog-actions[@class="mat-dialog-actions"]//button//span[contains('
+                                       'text(), "Cancel")]')
