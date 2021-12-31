@@ -3,13 +3,13 @@ from enum import Enum
 
 class BaseConstants:
     """ Common application constants """
-    DEFAULT_BASE_URL = "https://cbp-customer-qa.crossborderpickups.ca/"
+    DEFAULT_BASE_URL = "https://"
     CUSTOMER_USER_NAME = "qa_test12@yopmail.com"
     DEFAULT_PASSWORD = "123456"
-    OPERATION_PORTAL_URL = "https://cbp-ops-qa.crossborderpickups.ca/"
-    OPERATION_PORTAL_USERNAME = "operation@cbp.com"
+    OPERATION_PORTAL_URL = "https://"
+    OPERATION_PORTAL_USERNAME = "ops@cbp.com"
     OPERATION_PORTAL_PASSWORD = "operation"
-    BUSINESS_USERNAME = "jr21029@gmail.com"
+    BUSINESS_USERNAME = "jr210@gmail.com"
     DEFAULT_TIMEOUT = 30
     CHROME_BROWSER = "Chrome"
     CHROME_BINARY_LOCATION = "C:/Program Files (x86)/Google/Chrome/Application/chrome.exe"
@@ -32,7 +32,7 @@ class BaseConstants:
 
     class Urls:
         """ Constants related to application page URL's """
-        GRID_HUB_URL = "http://ec2-3-16-166-56.us-east-2.compute.amazonaws.com:4444/wd/hub"
+        GRID_HUB_URL = "http://"
         LOGIN_PAGE_URL = "account/auth/login"
         PACKAGES_PAGE_URL = "packages"
         DASHBOARD_PAGE_URL = "customerDashboard"
